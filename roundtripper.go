@@ -172,6 +172,6 @@ func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			}
 		}
 	}
-	return nil
-	//return errors.New("client error with the request - verify sig")
+	//return nil
+	return errors.New("client error with the request - verify sig")
 }
