@@ -1,4 +1,4 @@
-module github.com/KakashiHatake324/tlsclient
+module github.com/KageSolutions/tlsclient
 
 go 1.16
 

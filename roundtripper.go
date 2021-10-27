@@ -13,7 +13,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/KakashiHatake324/tlsclient/net/http2"
+	"github.com/KageSolutions/tlsclient/net/http2"
 	"golang.org/x/net/proxy"
 
 	utls "gitlab.com/yawning/utls.git"
