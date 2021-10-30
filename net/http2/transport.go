@@ -1477,22 +1477,39 @@ func (cs *clientStream) awaitFlowControl(maxBytes int) (taken int32, err error) 
 	}
 }
 
+func removeUnusedKeys(headerOrder []string, toRemove string) []string {
+	for i := range headerOrder {
+		if headerOrder[i] == toRemove {
+			headerOrder = append(headerOrder[:i], headerOrder[i+1:]...)
+			break
+		}
+	}
+	return headerOrder
+}
+
 // requires cc.mu be held.
 func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trailers string, contentLength int64) ([]byte, error) {
 
 	// orderedKeys will store keys from Header-Order string
 	// orderValues will store the respecting values
 	// which are in defined order.
-	var orderedKeys, orderedValues []string
+	var orderedKeys, orderedValues, removeKeys []string
 	isHeaderOrder := req.Header.Get("Header-Order")
 
 	// If Header-Order is defined
 	if isHeaderOrder != "" {
 		orderedKeys = strings.Split(req.Header.Get("Header-Order"), ",")
+		for v := range orderedKeys {
+			if req.Header.Get(orderedKeys[v]) == "" {
+				removeKeys = append(removeKeys, orderedKeys[v])
+			}
+		}
+		for v := range removeKeys {
+			orderedKeys = removeUnusedKeys(orderedKeys, removeKeys[v])
+		}
 		orderedValues = make([]string, len(orderedKeys))
 		for i := 0; i < len(orderedKeys); i++ {
 			orderedValues[i] = req.Header.Get(orderedKeys[i])
-
 		}
 	}
 
