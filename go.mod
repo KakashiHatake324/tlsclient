@@ -1,6 +1,6 @@
 module github.com/KageSolutions/tlsclient
 
-go 1.16
+go 1.17
 
 require (
 	gitlab.com/yawning/utls.git v0.0.12-1
