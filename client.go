@@ -9,7 +9,7 @@ import (
 	utls "gitlab.com/yawning/utls.git"
 )
 
-func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool, proxyUrl ...string) (http.Client, error) {
+func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool, timeout time.Duration, proxyUrl ...string) (http.Client, error) {
 
 	var client http.Client
 	var newerror error
@@ -23,13 +23,13 @@ func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool
 			client = http.Client{
 				Transport: newRoundTripper(clientHello, dialer),
 				Jar:       jar,
-				Timeout:   30 * time.Second,
+				Timeout:   timeout * time.Second,
 			}
 		} else {
 			client = http.Client{
 				Transport: newRoundTripper(clientHello, proxy.Direct),
 				Jar:       jar,
-				Timeout:   30 * time.Second,
+				Timeout:   timeout * time.Second,
 			}
 		}
 
@@ -42,14 +42,14 @@ func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool
 			client = http.Client{
 				Transport:     newRoundTripper(clientHello, dialer),
 				Jar:           jar,
-				Timeout:       30 * time.Second,
+				Timeout:       timeout * time.Second,
 				CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },
 			}
 		} else {
 			client = http.Client{
 				Transport:     newRoundTripper(clientHello, proxy.Direct),
 				Jar:           jar,
-				Timeout:       30 * time.Second,
+				Timeout:       timeout * time.Second,
 				CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },
 			}
 		}
