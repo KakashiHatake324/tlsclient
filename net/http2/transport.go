@@ -1951,7 +1951,8 @@ func (rl *clientConnReadLoop) run() error {
 		}
 		if !gotSettings {
 			if _, ok := f.(*SettingsFrame); !ok {
-				cc.logf("protocol error: received %T before a SETTINGS frame", f)
+				// DISABLE SETTINGS FRAME ERROR
+				//cc.logf("protocol error: received %T before a SETTINGS frame", f)
 				return ConnectionError(ErrCodeProtocol)
 			}
 			gotSettings = true
