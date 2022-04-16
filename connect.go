@@ -14,7 +14,7 @@ import (
 
 	"golang.org/x/net/proxy"
 
-	"github.com/KageSolutions/tlsclient/net/http2"
+	"github.com/KakashiHatake324/tlsclient/net/http2"
 )
 
 // connectDialer allows to configure one-time use HTTP CONNECT client
