@@ -5,6 +5,7 @@
 package tls
 
 import (
+	"encoding/hex"
 	"errors"
 	"io"
 )
@@ -508,7 +509,9 @@ func BoringPaddingStyle(unpaddedLen int) (int, bool) {
 		} else {
 			paddingLen = 1
 		}
-		return paddingLen, true
+
+		// to match with yeezysupply
+		return 196, true
 	}
 	return 0, false
 }
@@ -751,4 +754,13 @@ func (e *FakeExtension17513) Read(b []byte) (int, error) {
 	b[8] = byte(50)  // 0x32
 
 	return e.Len(), io.EOF
+}
+
+func HexTostring(hexStr string) string {
+
+	bs, err := hex.DecodeString(hexStr)
+	if err != nil {
+		panic(err)
+	}
+	return string(bs)
 }
