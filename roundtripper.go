@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 
@@ -70,6 +71,11 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	rt.Lock()
 	defer rt.Unlock()
 
+	kl, err := os.OpenFile("C:\\Users\\rafae\\OneDrive\\Desktop\\sslog.log", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return nil, err
+	}
+
 	var host string
 
 	// If we have the connection from when we determined the HTTPS
@@ -107,10 +113,22 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	switch conn.ConnectionState().NegotiatedProtocol {
 	case http2.NextProtoTLS:
 		// The remote peer is speaking HTTP 2 + TLS.
-		rt.cachedTransports[addr] = &http2.Transport{DialTLS: rt.dialTLSHTTP2}
+		rt.cachedTransports[addr] = &http2.Transport{
+			DialTLS: rt.dialTLSHTTP2,
+			TLSClientConfig: &tls.Config{
+				KeyLogWriter:       kl,
+				InsecureSkipVerify: true,
+			},
+		}
 	default:
 		// Assume the remote peer is speaking HTTP 1.x + TLS.
-		rt.cachedTransports[addr] = &http.Transport{DialTLSContext: rt.dialTLS}
+		rt.cachedTransports[addr] = &http.Transport{
+			DialTLSContext: rt.dialTLS,
+			TLSClientConfig: &tls.Config{
+				KeyLogWriter:       kl,
+				InsecureSkipVerify: true,
+			},
+		}
 	}
 
 	// Stash the connection just established for use servicing the
