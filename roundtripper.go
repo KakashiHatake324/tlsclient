@@ -98,7 +98,13 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 		rt.originalHost = host
 	}
 
-	conn := utls.UClient(rawConn, &utls.Config{ServerName: rt.originalHost, VerifyPeerCertificate: VerifyCert, InsecureSkipVerify: true}, rt.clientHelloId)
+	conn := utls.UClient(rawConn, &utls.Config{
+		KeyLogWriter:          kl,
+		ServerName:            rt.originalHost,
+		VerifyPeerCertificate: VerifyCert,
+		InsecureSkipVerify:    true},
+		rt.clientHelloId,
+	)
 	if err = conn.Handshake(); err != nil {
 		_ = conn.Close()
 		return nil, err
@@ -115,19 +121,11 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 		// The remote peer is speaking HTTP 2 + TLS.
 		rt.cachedTransports[addr] = &http2.Transport{
 			DialTLS: rt.dialTLSHTTP2,
-			TLSClientConfig: &tls.Config{
-				KeyLogWriter:       kl,
-				InsecureSkipVerify: true,
-			},
 		}
 	default:
 		// Assume the remote peer is speaking HTTP 1.x + TLS.
 		rt.cachedTransports[addr] = &http.Transport{
 			DialTLSContext: rt.dialTLS,
-			TLSClientConfig: &tls.Config{
-				KeyLogWriter:       kl,
-				InsecureSkipVerify: true,
-			},
 		}
 	}
 
