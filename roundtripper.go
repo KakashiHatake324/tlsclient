@@ -79,9 +79,11 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 
 	w, err := os.OpenFile(docdir+"/tls-secrets.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
+	log.Println(w)
 	var host string
 
 	// If we have the connection from when we determined the HTTPS
