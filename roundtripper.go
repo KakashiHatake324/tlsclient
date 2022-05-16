@@ -10,6 +10,9 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
+	"os/user"
+	"path"
 	"strings"
 	"sync"
 
@@ -70,12 +73,14 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	rt.Lock()
 	defer rt.Unlock()
 
-	/*
-		kl, err := os.OpenFile("C:\\Users\\rafae\\OneDrive\\Desktop\\sslkey.log", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-		if err != nil {
-			return nil, err
-		}
-	*/
+	usr, _ := user.Current()
+	dir := usr.HomeDir
+	docdir := path.Join(dir, "Documents")
+
+	w, err := os.OpenFile(docdir+"/tls-secrets.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return nil, err
+	}
 
 	var host string
 
@@ -100,7 +105,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	}
 
 	conn := utls.UClient(rawConn, &utls.Config{
-		//KeyLogWriter:          kl,
+		KeyLogWriter:          w,
 		ServerName:            rt.originalHost,
 		VerifyPeerCertificate: VerifyCert,
 		InsecureSkipVerify:    true},
