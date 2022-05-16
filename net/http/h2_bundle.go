@@ -2307,6 +2307,14 @@ func (f *http2Framer) WriteHeaders(p http2HeadersFrameParam) error {
 	if !http2validStreamID(p.StreamID) && !f.AllowIllegalWrites {
 		return http2errStreamID
 	}
+
+	    // Force priority frame TODO: gauge
+		pp := http2PriorityParam{}
+		pp.StreamDep = 0
+		pp.Exclusive = true
+		pp.Weight = 255
+		p.Priority = pp
+	
 	var flags http2Flags
 	if p.PadLength != 0 {
 		flags |= http2FlagHeadersPadded
@@ -5734,6 +5742,7 @@ func http2handleHeaderListTooLong(w ResponseWriter, r *Request) {
 	io.WriteString(w, "<h1>HTTP Error 431</h1><p>Request Header Field(s) Too Large</p>")
 }
 
+	
 // called from handler goroutines.
 // h may be nil.
 func (sc *http2serverConn) writeHeaders(st *http2stream, headerData *http2writeResHeaders) error {
