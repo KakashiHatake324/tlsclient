@@ -121,11 +121,19 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	case http2.NextProtoTLS:
 		// The remote peer is speaking HTTP 2 + TLS.
 		rt.cachedTransports[addr] = &http2.Transport{
+			TLSClientConfig: &tls.Config{
+				KeyLogWriter:       w,
+				InsecureSkipVerify: true,
+			},
 			DialTLS: rt.dialTLSHTTP2,
 		}
 	default:
 		// Assume the remote peer is speaking HTTP 1.x + TLS.
 		rt.cachedTransports[addr] = &http.Transport{
+			TLSClientConfig: &tls.Config{
+				KeyLogWriter:       w,
+				InsecureSkipVerify: true,
+			},
 			DialTLSContext: rt.dialTLS,
 		}
 	}
