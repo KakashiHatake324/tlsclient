@@ -10,7 +10,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 
@@ -71,12 +70,13 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	rt.Lock()
 	defer rt.Unlock()
 
-	w, err := os.OpenFile("C:\\Users\\rafae\\OneDrive\\Desktop\\ssl-keylog.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
+	/*
+		w, err := os.OpenFile("C:\\Users\\rafae\\OneDrive\\Desktop\\ssl-keylog.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+		if err != nil {
+			//log.Println(err)
+			return nil, err
+		}
+	*/
 	var host string
 
 	// If we have the connection from when we determined the HTTPS
@@ -100,7 +100,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	}
 
 	conn := utls.UClient(rawConn, &utls.Config{
-		KeyLogWriter:          w,
+		//KeyLogWriter:          w,
 		ServerName:            rt.originalHost,
 		VerifyPeerCertificate: VerifyCert,
 		InsecureSkipVerify:    true},
@@ -121,19 +121,11 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	case http2.NextProtoTLS:
 		// The remote peer is speaking HTTP 2 + TLS.
 		rt.cachedTransports[addr] = &http2.Transport{
-			TLSClientConfig: &tls.Config{
-				KeyLogWriter:       w,
-				InsecureSkipVerify: true,
-			},
 			DialTLS: rt.dialTLSHTTP2,
 		}
 	default:
 		// Assume the remote peer is speaking HTTP 1.x + TLS.
 		rt.cachedTransports[addr] = &http.Transport{
-			TLSClientConfig: &tls.Config{
-				KeyLogWriter:       w,
-				InsecureSkipVerify: true,
-			},
 			DialTLSContext: rt.dialTLS,
 		}
 	}

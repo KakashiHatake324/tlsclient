@@ -8,12 +8,10 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon May 16 20:26:38 2022
+# Make data base, printed on Tue May 17 17:19:47 2022
 
 # Variables
 
-# environment
-FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
 # environment
 SYSTEMDRIVE = C:
 # environment
@@ -21,11 +19,13 @@ LC_ALL = C
 # environment
 USERPROFILE = C:\Users\rafae
 # environment
+LOCAL_GIT_DIRECTORY = C:\Users\rafae\AppData\Local\GitHubDesktop\app-3.0.0\resources\app\git
+# environment
 LOCALAPPDATA = C:\Users\rafae\AppData\Local
 # environment
-VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-a208e8a6-b9ae-459d-be22-a77b0c1b4588-sock
+VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-8bd3f7c1-b21c-4f96-9cc5-b933926fd32e-sock
 # environment
-VSCODE_CWD = C:\Windows\system32
+VSCODE_CWD = C:\Users\rafae\AppData\Local\GitHubDesktop\app-3.0.0
 # environment
 CHOCOLATEYINSTALL = C:\ProgramData\chocolatey
 # environment
@@ -41,9 +41,7 @@ GOPATH = C:\Users\rafae\go
 # automatic
 @D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_13480_KLJUGOPTYVWSLJCU
-# environment
-FPS_BROWSER_USER_PROFILE_STRING = Default
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_15264_HSQTPLYAGEJBJYQK
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -97,7 +95,7 @@ MAKEFILE_LIST :=
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 13480
+VSCODE_PID = 15264
 # automatic
 ?D = $(patsubst %/,%,$(patsubst %\,%,$(dir $?)))
 # automatic
@@ -208,6 +206,10 @@ SUFFIXES :=
 ALLUSERSPROFILE = C:\ProgramData
 # environment
 SESSIONNAME = Console
+# environment
+VSCODE_CLI = 1
+# environment
+ELECTRON_NO_ATTACH_CONSOLE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync load
 # environment
@@ -215,7 +217,7 @@ PROCESSOR_REVISION = 2100
 # environment
 PROCESSOR_IDENTIFIER = AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD
 # variable set hash-table stats:
-# Load=101/1024=10%, Rehash=0, Collisions=10/125=8%
+# Load=102/1024=10%, Rehash=0, Collisions=9/126=7%
 
 # Pattern-specific Variable Values
 
@@ -223,9 +225,9 @@ PROCESSOR_IDENTIFIER = AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD
 
 # Directories
 
-# . (key c:/Users/rafae/Documents/GitHub/tlsclient, mtime 1652671884): 14 files, no impossibilities.
+# . (key c:/Users/rafae/Documents/GitHub/tlsclient, mtime 1652822323): 15 files, no impossibilities.
 
-# 14 files, no impossibilities in 1 directories.
+# 15 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -282,12 +284,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 21 / storage = 185 B / avg = 8 B
-# current buf: size = 8174 B / used = 185 B / count = 21 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 22 / storage = 196 B / avg = 8 B
+# current buf: size = 8174 B / used = 196 B / count = 22 / avg = 8 B
 
-# strcache performance: lookups = 24 / hit rate = 12%
+# strcache performance: lookups = 25 / hit rate = 12%
 # hash-table stats:
-# Load=21/8192=0%, Rehash=0, Collisions=0/24=0%
-# Finished Make data base on Mon May 16 20:26:38 2022
+# Load=22/8192=0%, Rehash=0, Collisions=0/25=0%
+# Finished Make data base on Tue May 17 17:19:47 2022
 
  
