@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Fri May 20 22:46:57 2022
+# Make data base, printed on Sat May 21 00:00:53 2022
 
 # Variables
 
@@ -21,13 +21,11 @@ LC_ALL = C
 # environment
 USERPROFILE = C:\Users\rafae
 # environment
-LOCAL_GIT_DIRECTORY = C:\Users\rafae\AppData\Local\GitHubDesktop\app-3.0.0\resources\app\git
-# environment
 LOCALAPPDATA = C:\Users\rafae\AppData\Local
 # environment
-VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-bc19178e-cbf2-4d28-b2f1-8a5671982bd2-sock
+VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-0a1fff4d-0776-4d7c-931a-7e67d21115c1-sock
 # environment
-VSCODE_CWD = C:\Users\rafae\AppData\Local\GitHubDesktop\app-3.0.0
+VSCODE_CWD = C:\Windows\system32
 # environment
 CHOCOLATEYINSTALL = C:\ProgramData\chocolatey
 # environment
@@ -210,10 +208,6 @@ SUFFIXES :=
 ALLUSERSPROFILE = C:\ProgramData
 # environment
 SESSIONNAME = Console
-# environment
-VSCODE_CLI = 1
-# environment
-ELECTRON_NO_ATTACH_CONSOLE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync load
 # environment
@@ -221,7 +215,7 @@ PROCESSOR_REVISION = 2100
 # environment
 PROCESSOR_IDENTIFIER = AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD
 # variable set hash-table stats:
-# Load=104/1024=10%, Rehash=0, Collisions=10/128=8%
+# Load=101/1024=10%, Rehash=0, Collisions=10/125=8%
 
 # Pattern-specific Variable Values
 
@@ -294,6 +288,6 @@ GNUmakefile:
 # strcache performance: lookups = 25 / hit rate = 12%
 # hash-table stats:
 # Load=22/8192=0%, Rehash=0, Collisions=0/25=0%
-# Finished Make data base on Fri May 20 22:46:57 2022
+# Finished Make data base on Sat May 21 00:00:53 2022
 
  

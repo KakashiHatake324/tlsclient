@@ -13,7 +13,6 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"syscall"
 
 	"github.com/KakashiHatake324/tlsclient/net/http2"
 	"golang.org/x/net/proxy"
@@ -193,14 +192,4 @@ func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 	}
 	return nil
 	//return errors.New("client error with the request - verify sig")
-}
-
-func myControl(network, address string, c syscall.RawConn) error {
-	return c.Control(func(fd uintptr) {
-		// set the socket options
-		err := syscall.SetsockoptInt(syscall.Handle(fd), syscall.IPPROTO_IP, syscall.IP_TTL, 66)
-		if err != nil {
-			log.Println("setsocketopt: ", err)
-		}
-	})
 }
