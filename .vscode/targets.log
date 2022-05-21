@@ -8,10 +8,12 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue May 17 17:19:47 2022
+# Make data base, printed on Fri May 20 22:46:57 2022
 
 # Variables
 
+# environment
+FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
 # environment
 SYSTEMDRIVE = C:
 # environment
@@ -23,7 +25,7 @@ LOCAL_GIT_DIRECTORY = C:\Users\rafae\AppData\Local\GitHubDesktop\app-3.0.0\resou
 # environment
 LOCALAPPDATA = C:\Users\rafae\AppData\Local
 # environment
-VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-8bd3f7c1-b21c-4f96-9cc5-b933926fd32e-sock
+VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-bc19178e-cbf2-4d28-b2f1-8a5671982bd2-sock
 # environment
 VSCODE_CWD = C:\Users\rafae\AppData\Local\GitHubDesktop\app-3.0.0
 # environment
@@ -42,6 +44,8 @@ GOPATH = C:\Users\rafae\go
 @D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
 # environment
 CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_15264_HSQTPLYAGEJBJYQK
+# environment
+FPS_BROWSER_USER_PROFILE_STRING = Default
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -217,7 +221,7 @@ PROCESSOR_REVISION = 2100
 # environment
 PROCESSOR_IDENTIFIER = AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD
 # variable set hash-table stats:
-# Load=102/1024=10%, Rehash=0, Collisions=9/126=7%
+# Load=104/1024=10%, Rehash=0, Collisions=10/128=8%
 
 # Pattern-specific Variable Values
 
@@ -225,7 +229,7 @@ PROCESSOR_IDENTIFIER = AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD
 
 # Directories
 
-# . (key c:/Users/rafae/Documents/GitHub/tlsclient, mtime 1652822323): 15 files, no impossibilities.
+# . (key c:/Users/rafae/Documents/GitHub/tlsclient, mtime 1653101204): 15 files, no impossibilities.
 
 # 15 files, no impossibilities in 1 directories.
 
@@ -290,6 +294,6 @@ GNUmakefile:
 # strcache performance: lookups = 25 / hit rate = 12%
 # hash-table stats:
 # Load=22/8192=0%, Rehash=0, Collisions=0/25=0%
-# Finished Make data base on Tue May 17 17:19:47 2022
+# Finished Make data base on Fri May 20 22:46:57 2022
 
  
