@@ -71,9 +71,9 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	rt.Lock()
 	defer rt.Unlock()
 
-	w, err := os.OpenFile("C:\\Users\\rafae\\OneDrive\\Desktop\\ssl-keylog.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
+	w, err := os.OpenFile("C:\\Users\\rafae\\OneDrive\\Desktop\\ssl-key.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
-		//log.Println(err)
+		log.Println(err)
 		return nil, err
 	}
 
