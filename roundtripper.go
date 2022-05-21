@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/KakashiHatake324/tlsclient/net/http2"
 	"golang.org/x/net/proxy"
@@ -161,8 +162,19 @@ func newRoundTripper(clientHello utls.ClientHelloID, dialer ...proxy.ContextDial
 			cachedConnections: make(map[string]net.Conn),
 		}
 	} else {
+		dialer := &net.Dialer{
+			Timeout:       5 * time.Second,
+			Deadline:      time.Time{},
+			LocalAddr:     nil,
+			DualStack:     false,
+			FallbackDelay: 0,
+			KeepAlive:     0,
+			Resolver:      nil,
+			Control:       myControl,
+		}
+
 		return &roundTripper{
-			dialer: proxy.Direct,
+			dialer: dialer,
 
 			clientHelloId: clientHello,
 
