@@ -67,9 +67,6 @@ func newConnectDialer(proxyUrlStr string) (proxy.ContextDialer, error) {
 		ProxyUrl:          *proxyUrl,
 		DefaultHeader:     make(http.Header),
 		EnableH2ConnReuse: true,
-		Dialer: net.Dialer{
-			Control: myControl,
-		},
 	}
 
 	if proxyUrl.User != nil {

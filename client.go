@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"golang.org/x/net/proxy"
+
 	utls "github.com/KakashiHatake324/tlsclient/utls"
 )
 
@@ -25,7 +27,7 @@ func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool
 			}
 		} else {
 			client = http.Client{
-				Transport: newRoundTripper(clientHello),
+				Transport: newRoundTripper(clientHello, proxy.Direct),
 				Jar:       jar,
 				Timeout:   timeout * time.Second,
 			}
@@ -45,7 +47,7 @@ func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool
 			}
 		} else {
 			client = http.Client{
-				Transport:     newRoundTripper(clientHello),
+				Transport:     newRoundTripper(clientHello, proxy.Direct),
 				Jar:           jar,
 				Timeout:       timeout * time.Second,
 				CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },
