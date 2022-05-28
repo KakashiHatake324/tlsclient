@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat May 21 00:27:48 2022
+# Make data base, printed on Sat May 28 12:28:56 2022
 
 # Variables
 
@@ -23,7 +23,7 @@ USERPROFILE = C:\Users\rafae
 # environment
 LOCALAPPDATA = C:\Users\rafae\AppData\Local
 # environment
-VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-4390f43c-06ed-453b-96c9-cdd0daaa2c21-sock
+VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-8b09b231-ce46-4dca-95fd-30a9f479b357-sock
 # environment
 VSCODE_CWD = C:\Windows\system32
 # environment
@@ -288,6 +288,7 @@ GNUmakefile:
 # strcache performance: lookups = 25 / hit rate = 12%
 # hash-table stats:
 # Load=22/8192=0%, Rehash=0, Collisions=0/25=0%
-# Finished Make data base on Sat May 21 00:27:48 2022
+# Finished Make data base on Sat May  
+28 12:28:56 2022
 
  
