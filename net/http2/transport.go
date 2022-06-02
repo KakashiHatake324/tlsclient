@@ -1573,12 +1573,18 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 			m = http.MethodGet
 		}
 
+		// incase we have to spoof host
+		ReqHost := req.Header.Get("host")
+		if ReqHost == "" {
+			ReqHost = host
+		}
+
 		// If Chrome User-Agent
 		// Then sending Pseudo-Header Fields in chrome's order.
 		if strings.Contains(req.Header.Get("user-agent"), "Chrome") {
 
 			f(":method", m)
-			f(":authority", host)
+			f(":authority", ReqHost)
 			if req.Method != "CONNECT" {
 				f(":scheme", req.URL.Scheme)
 				f(":path", path)
@@ -1594,7 +1600,7 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 				f(":scheme", req.URL.Scheme)
 				f(":path", path)
 			}
-			f(":authority", host)
+			f(":authority", ReqHost)
 			if trailers != "" {
 				f("trailer", trailers)
 			}
@@ -1603,7 +1609,7 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 			f(":method", m)
 			if req.Method != "CONNECT" {
 				f(":path", path)
-				f(":authority", host)
+				f(":authority", ReqHost)
 				f(":scheme", req.URL.Scheme)
 			}
 			if trailers != "" {
