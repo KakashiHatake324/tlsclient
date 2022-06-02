@@ -125,8 +125,9 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 
 		// The remote peer is speaking HTTP 2 + TLS.
 
+		hostString := strings.ToLower(addr)
 		// uses go's native http/2 transport for sending max limit headera
-		if strings.Contains(addr, "footlocker") || strings.Contains(addr, "eastbay") || strings.Contains(addr, "champssports") {
+		if strings.Contains(hostString, "footlocker") || strings.Contains(hostString, "eastbay") || strings.Contains(hostString, "champssports") || strings.Contains(hostString, "kidsfootlocker") || strings.Contains(hostString, "footaction") {
 
 			rt.cachedTransports[addr] = &h2Native.Transport{
 				DialTLS: rt.dialTLSHTTP2,
