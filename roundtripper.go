@@ -17,6 +17,8 @@ import (
 	"golang.org/x/net/proxy"
 
 	utls "github.com/KakashiHatake324/tlsclient/utls"
+
+	h2Native "github.com/KakashiHatake324/tlsclient/native/http2"
 )
 
 var errProtocolNegotiated = errors.New("protocol negotiated")
@@ -120,10 +122,25 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	// of ALPN.
 	switch conn.ConnectionState().NegotiatedProtocol {
 	case http2.NextProtoTLS:
+
 		// The remote peer is speaking HTTP 2 + TLS.
-		rt.cachedTransports[addr] = &http2.Transport{
-			DialTLS: rt.dialTLSHTTP2,
+
+		// uses go's native http/2 transport for sending max limit headera
+		if strings.Contains(addr, "footlocker") || strings.Contains(addr, "eastbay") || strings.Contains(addr, "champssports") {
+
+			rt.cachedTransports[addr] = &h2Native.Transport{
+				DialTLS: rt.dialTLSHTTP2,
+			}
+
+		} else {
+
+			// uses modified transport with chrome's settings
+
+			rt.cachedTransports[addr] = &http2.Transport{
+				DialTLS: rt.dialTLSHTTP2,
+			}
 		}
+
 	default:
 		// Assume the remote peer is speaking HTTP 1.x + TLS.
 		rt.cachedTransports[addr] = &http.Transport{
