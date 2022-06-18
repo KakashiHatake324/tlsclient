@@ -8,10 +8,12 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Jun 01 19:11:42 2022
+# Make data base, printed on Sat Jun 18 13:15:19 2022
 
 # Variables
 
+# environment
+FPS_BROWSER_APP_PROFILE_STRING = Internet Explorer
 # environment
 SYSTEMDRIVE = C:
 # environment
@@ -21,9 +23,9 @@ USERPROFILE = C:\Users\rafae
 # environment
 LOCALAPPDATA = C:\Users\rafae\AppData\Local
 # environment
-VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-42a2b014-edc2-47c7-9d3d-f7206bd69238-sock
+VSCODE_IPC_HOOK_EXTHOST = \\.\pipe\vscode-ipc-63cbd794-6149-469c-bd0e-1a717a0a734b-sock
 # environment
-VSCODE_CWD = C:\Users\rafae\AppData\Local\Programs\Microsoft VS Code
+VSCODE_CWD = C:\Windows\system32
 # environment
 CHOCOLATEYINSTALL = C:\ProgramData\chocolatey
 # environment
@@ -39,7 +41,9 @@ GOPATH = C:\Users\rafae\go
 # automatic
 @D = $(patsubst %/,%,$(patsubst %\,%,$(dir $@)))
 # environment
-CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_59876_NAOKMYOIKYOKSTZX
+CHROME_CRASHPAD_PIPE_NAME = \\.\pipe\crashpad_43884_WMYPCGUQQNUFCGQP
+# environment
+FPS_BROWSER_USER_PROFILE_STRING = Default
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # default
@@ -53,7 +57,7 @@ VSCODE_LOG_STACK = false
 # automatic
 %F = $(notdir $%)
 # environment
-VSCODE_CODE_CACHE_PATH = C:\Users\rafae\AppData\Roaming\Code\CachedData\c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
+VSCODE_CODE_CACHE_PATH = C:\Users\rafae\AppData\Roaming\Code\CachedData\4af164ea3a06f701fe3e89a2bcbb421d2026b68f
 # environment
 LANG = C
 # default
@@ -93,7 +97,7 @@ MAKEFILE_LIST :=
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-VSCODE_PID = 59876
+VSCODE_PID = 43884
 # automatic
 ?D = $(patsubst %/,%,$(patsubst %\,%,$(dir $?)))
 # automatic
@@ -191,7 +195,7 @@ ELECTRON_RUN_AS_NODE = 1
 # environment
 TEMP = C:\Users\rafae\AppData\Local\Temp
 # environment
-VSCODE_IPC_HOOK = \\.\pipe\00f77f8c5f881e0ccff51ad086b3e679-1.67.2-main-sock
+VSCODE_IPC_HOOK = \\.\pipe\00f77f8c5f881e0ccff51ad086b3e679-1.68.0-main-sock
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # default
@@ -211,7 +215,7 @@ PROCESSOR_REVISION = 2100
 # environment
 PROCESSOR_IDENTIFIER = AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD
 # variable set hash-table stats:
-# Load=99/1024=10%, Rehash=0, Collisions=9/123=7%
+# Load=101/1024=10%, Rehash=0, Collisions=10/125=8%
 
 # Pattern-specific Variable Values
 
@@ -284,6 +288,6 @@ GNUmakefile:
 # strcache performance: lookups = 25 / hit rate = 12%
 # hash-table stats:
 # Load=22/8192=0%, Rehash=0, Collisions=0/25=0%
-# Finished Make data base on Wed Jun 01 19:11:42 2022
+# Finished Make data base on Sat Jun 18 13:15:19 2022
 
  

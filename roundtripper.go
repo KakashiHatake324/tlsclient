@@ -105,7 +105,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 		//KeyLogWriter:          w,
 		ServerName: rt.originalHost,
 		//VerifyPeerCertificate: VerifyCert,
-		//InsecureSkipVerify:    true
+		InsecureSkipVerify: true,
 	},
 		rt.clientHelloId,
 	)
