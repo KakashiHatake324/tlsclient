@@ -1291,9 +1291,11 @@ func (cc *ClientConn) writeHeaders(streamID uint32, endStream bool, maxFrameSize
 				BlockFragment: chunk,
 				EndStream:     endStream,
 				EndHeaders:    endHeaders,
-				// setting priority frame as true to match chrome
+				// setting priority frame as true to match with chrome
+				// setting priority weight as 256 to match with chrome
 				Priority: PriorityParam{
 					Exclusive: true,
+					Weight:    255,
 				},
 			})
 			first = false
