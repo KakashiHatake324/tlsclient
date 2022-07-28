@@ -30,7 +30,7 @@ func main() {
 
 		// Set as true to set enable push value to 1
 		// or set as false to set enable push value to 0
-		// if ServerPushSet is not true this will not get sent.
+		// if ServerPushSet is not as true this will not get sent.
 		ServerPushEnable: false,
 
 		Priority: true,
