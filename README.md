@@ -78,7 +78,7 @@ func main() {
 	req.Header.Add("header-order", "accept,accept-encoding,accept-language,cache-control,pragma,sec-ch-ua,sec-ch-ua-mobile,sec-ch-ua-platform,sec-fetch-dest,sec-fetch-mode,sec-fetch-site,sec-fetch-user,upgrade-insecure-requests,user-agent")
 
 	// customize http/2 pseudo headers order (optional)
-	// if chrome's user-agent is set then client will implicitly ovveride it
+	// if chrome's user-agent is set then client will implicitly use chrome's order
 	// and set send pseudo headers in chrome's order
 	// m = :method:, a = :authority:, s = :scheme:, p = :path:
 	req.Header.Add("pseudo-headers-order", "s,m,p,a")
