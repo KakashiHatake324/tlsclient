@@ -66,8 +66,6 @@ const (
 	// http://http2.github.io/http2-spec/#SettingValues
 	initialHeaderTableSize = 4096
 
-	initialWindowSize = 65535 // 6.9.2 Initial Flow Control Window Size
-
 	defaultMaxReadFrameSize = 1 << 20
 )
 

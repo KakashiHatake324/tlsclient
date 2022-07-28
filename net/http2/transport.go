@@ -36,22 +36,29 @@ import (
 	"golang.org/x/net/idna"
 )
 
-const (
-	// transportDefaultConnFlow is how many connection-level flow control
-	// tokens we give the server at start-up, past the default 64k.
-	transportDefaultConnFlow = 15663105
+// var (
+// 	// transportDefaultConnFlow is how many connection-level flow control
+// 	// tokens we give the server at start-up, past the default 64k.
+// 	transportDefaultConnFlow = 15663105
 
-	// transportDefaultStreamFlow is how many stream-level flow
-	// control tokens we announce to the peer, and how many bytes
-	// we buffer per stream.
-	transportDefaultStreamFlow = 6291456
+// 	// transportDefaultStreamFlow is how many stream-level flow
+// 	// control tokens we announce to the peer, and how many bytes
+// 	// we buffer per stream.
+// 	transportDefaultStreamFlow = 6291456
 
-	// transportDefaultStreamMinRefresh is the minimum number of bytes we'll send
-	// a stream-level WINDOW_UPDATE for at a time.
-	transportDefaultStreamMinRefresh = 4 << 10
+// 	// transportDefaultStreamMinRefresh is the minimum number of bytes we'll send
+// 	// a stream-level WINDOW_UPDATE for at a time.
+// 	transportDefaultStreamMinRefresh = 4 << 10
 
-	defaultUserAgent = "Go-http-client/2.0"
-)
+// 	defaultUserAgent = "Go-http-client/2.0"
+// )
+var transportDefaultConnFlow uint32 = 15663105
+var transportDefaultStreamFlow uint32 = 6291456
+var transportDefaultStreamMinRefresh int = 4 << 10
+var defaultUserAgent string = "Go-http-client/2.0"
+var priority = false
+var priorityWeight = 0
+var initialWindowSize int32 = 65535
 
 // Transport is an HTTP/2 Transport.
 //
@@ -96,7 +103,17 @@ type Transport struct {
 	// want to advertise an unlimited value to the peer, Transport
 	// interprets the highest possible value here (0xffffffff or 1<<32-1)
 	// to mean no limit.
-	MaxHeaderListSize uint32
+	MaxHeaderListSize int
+
+	ServerPushSet    bool
+	ServerPushEnable bool
+	Priority         bool
+	PriorityWeight   int
+
+	InitialWindowSize    int
+	MaxConcurrentStreams int
+	HeaderTableSize      int
+	WindowSizeIncrement  int
 
 	// StrictMaxConcurrentStreams controls whether the server's
 	// SETTINGS_MAX_CONCURRENT_STREAMS should be respected
@@ -128,16 +145,17 @@ type Transport struct {
 
 	connPoolOnce  sync.Once
 	connPoolOrDef ClientConnPool // non-nil version of ConnPool
+
 }
 
 func (t *Transport) maxHeaderListSize() uint32 {
-	if t.MaxHeaderListSize == 0 {
+	if uint32(t.MaxHeaderListSize) == 0 {
 		return 10 << 20
 	}
 	if t.MaxHeaderListSize == 0xffffffff {
 		return 0
 	}
-	return t.MaxHeaderListSize
+	return uint32(t.MaxHeaderListSize)
 }
 
 func (t *Transport) disableCompression() bool {
@@ -643,10 +661,10 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 		tconn:                 c,
 		readerDone:            make(chan struct{}),
 		nextStreamID:          1,
-		maxFrameSize:          16 << 10,           // spec default
-		initialWindowSize:     65535,              // spec default
-		maxConcurrentStreams:  1000,               // "infinite", per spec. 1000 seems good enough.
-		peerMaxHeaderListSize: 0xffffffffffffffff, // "infinite", per spec. Use 2^64-1 instead.
+		maxFrameSize:          16 << 10,                       // spec default
+		initialWindowSize:     uint32(t.InitialWindowSize),    // spec default
+		maxConcurrentStreams:  uint32(t.MaxConcurrentStreams), // "infinite", per spec. 1000 seems good enough.
+		peerMaxHeaderListSize: 0xffffffffffffffff,             // "infinite", per spec. Use 2^64-1 instead.
 		streams:               make(map[uint32]*clientStream),
 		singleUse:             singleUse,
 		wantSettingsAck:       true,
@@ -661,7 +679,7 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 	}
 
 	cc.cond = sync.NewCond(&cc.mu)
-	cc.flow.add(int32(initialWindowSize))
+	cc.flow.add(int32(t.InitialWindowSize))
 
 	// TODO: adjust this writer size to account for frame size +
 	// MTU + crypto/tls record padding.
@@ -690,13 +708,41 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 	//                           Settings - Max concurrent streams : 1000
 	//                           Settings - Initial Windows size : 6291456
 	//                           Settings - Max header list size : 262144
-	initialSettings := []Setting{
-		{ID: SettingHeaderTableSize, Val: 65536},
-		{ID: SettingMaxConcurrentStreams, Val: 1000},
-		{ID: SettingInitialWindowSize, Val: transportDefaultStreamFlow},
+
+	initialWindowSize = int32(t.InitialWindowSize)
+	priority = t.Priority
+	priorityWeight = t.PriorityWeight
+	transportDefaultStreamFlow = uint32(initialWindowSize)
+	transportDefaultConnFlow = uint32(t.WindowSizeIncrement)
+	var initialSettings []Setting
+	if !t.ServerPushSet {
+
+		initialSettings = []Setting{
+			{ID: SettingHeaderTableSize, Val: uint32(t.HeaderTableSize)},
+			{ID: SettingMaxConcurrentStreams, Val: uint32(t.MaxConcurrentStreams)},
+			{ID: SettingInitialWindowSize, Val: uint32(transportDefaultStreamFlow)},
+		}
+
+	} else {
+
+		var spVal uint32
+		if t.ServerPushEnable {
+			spVal = 1
+		} else {
+			spVal = 0
+		}
+
+		initialSettings = []Setting{
+			{ID: SettingEnablePush, Val: spVal},
+			{ID: SettingHeaderTableSize, Val: uint32(t.HeaderTableSize)},
+			{ID: SettingMaxConcurrentStreams, Val: uint32(t.MaxConcurrentStreams)},
+			{ID: SettingInitialWindowSize, Val: uint32(transportDefaultStreamFlow)},
+		}
+
 	}
+
 	if max := t.maxHeaderListSize(); max != 0 {
-		initialSettings = append(initialSettings, Setting{ID: SettingMaxHeaderListSize, Val: 262144})
+		initialSettings = append(initialSettings, Setting{ID: SettingMaxHeaderListSize, Val: uint32(t.MaxHeaderListSize)})
 	}
 
 	cc.bw.Write(clientPreface)
@@ -704,9 +750,9 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 
 	// WINDOW UPDATE INCREMENT SIZE SET AS CHROME Version 89.0.4389.90
 	// Window Size Increment: 15663105
-	cc.fr.WriteWindowUpdate(0, transportDefaultConnFlow)
+	cc.fr.WriteWindowUpdate(0, uint32(t.WindowSizeIncrement))
 
-	cc.inflow.add(transportDefaultConnFlow + initialWindowSize)
+	cc.inflow.add(int32(t.WindowSizeIncrement) + int32(t.InitialWindowSize))
 	cc.bw.Flush()
 	if cc.werr != nil {
 		cc.Close()
@@ -1277,6 +1323,14 @@ func (cc *ClientConn) awaitOpenSlotForRequest(req *http.Request) error {
 
 // requires cc.wmu be held
 func (cc *ClientConn) writeHeaders(streamID uint32, endStream bool, maxFrameSize int, hdrs []byte) error {
+
+	var weight int
+	if priorityWeight == 0 {
+
+		weight = 0
+	} else {
+		weight = priorityWeight - 1
+	}
 	first := true // first frame written (HEADERS is first, then CONTINUATION)
 	for len(hdrs) > 0 && cc.werr == nil {
 		chunk := hdrs
@@ -1291,11 +1345,10 @@ func (cc *ClientConn) writeHeaders(streamID uint32, endStream bool, maxFrameSize
 				BlockFragment: chunk,
 				EndStream:     endStream,
 				EndHeaders:    endHeaders,
-				// setting priority frame as true to match with chrome
-				// setting priority weight as 256 to match with chrome
+				// setting priority frame as true to match chrome
 				Priority: PriorityParam{
-					Exclusive: true,
-					Weight:    255,
+					Exclusive: priority,
+					Weight:    uint8(weight),
 				},
 			})
 			first = false
@@ -1554,6 +1607,7 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 			if k == "Header-order" {
 				continue
 			}
+
 			return nil, fmt.Errorf("invalid HTTP header name %q", k)
 		}
 		for _, v := range vv {
@@ -1581,6 +1635,22 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 			ReqHost = host
 		}
 
+		// sets custom Pseudo-Headers-Order order
+		if req.Header.Get("Pseudo-Headers-Order") != "" && len(req.Header.Get("Pseudo-Headers-Order")) == 7 && !strings.Contains(req.Header.Get("user-agent"), "Chrome") {
+
+			pHeaders := map[string]string{"m": ":method", "a": ":authority", "s": ":scheme", "p": ":path"}
+			pValues := map[string]string{":method": m, ":authority": ReqHost, ":scheme": req.URL.Scheme, ":path": path}
+			pSlice := strings.Split(req.Header.Get("Pseudo-Headers-Order"), ",")
+
+			for _, ele := range pSlice {
+
+				h := pHeaders[ele]
+				v := pValues[h]
+				f(h, v)
+
+			}
+
+		}
 		// If Chrome User-Agent
 		// Then sending Pseudo-Header Fields in chrome's order.
 		if strings.Contains(req.Header.Get("user-agent"), "Chrome") {
@@ -1595,19 +1665,7 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 				f("trailer", trailers)
 			}
 
-		} else if strings.Contains(req.Header.Get("user-agent"), "iPhone") { // Iphone pseudo header order
-
-			f(":method", m)
-			if req.Method != "CONNECT" {
-				f(":scheme", req.URL.Scheme)
-				f(":path", path)
-			}
-			f(":authority", ReqHost)
-			if trailers != "" {
-				f("trailer", trailers)
-			}
-
-		} else { // else sending Pseudo-Header Fields in firefox's order.
+		} else if req.Header.Get("Pseudo-Headers-Order") == "" {
 			f(":method", m)
 			if req.Method != "CONNECT" {
 				f(":path", path)
@@ -1680,6 +1738,11 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 			// Headers will be sent in non defined order.
 			if len(orderedKeys) == 0 {
 				for _, v := range vv {
+
+					if strings.ToLower(k) == "Header-Order" || strings.ToLower(k) == "Pseudo-Headers-Order" {
+						continue
+					}
+
 					f(k, v)
 				}
 			}
@@ -1819,7 +1882,7 @@ func (cc *ClientConn) newStream() *clientStream {
 	}
 	cs.flow.add(int32(cc.initialWindowSize))
 	cs.flow.setConnFlow(&cc.flow)
-	cs.inflow.add(transportDefaultStreamFlow)
+	cs.inflow.add(int32(transportDefaultStreamFlow))
 	cs.inflow.setConnFlow(&cc.inflow)
 	cc.nextStreamID += 2
 	cc.streams[cs.ID] = cs
@@ -1989,7 +2052,7 @@ func (rl *clientConnReadLoop) run() error {
 			err = rl.processSettings(f)
 		case *PushPromiseFrame:
 			// commenting it out to patch out potential error because of chrome settings
-			// err = rl.processPushPromise(f)
+			err = rl.processPushPromise(f)
 		case *WindowUpdateFrame:
 			err = rl.processWindowUpdate(f)
 		case *PingFrame:
@@ -2257,8 +2320,8 @@ func (b transportResponseBody) Read(p []byte) (n int, err error) {
 
 	var connAdd, streamAdd int32
 	// Check the conn-level first, before the stream-level.
-	if v := cc.inflow.available(); v < transportDefaultConnFlow/2 {
-		connAdd = transportDefaultConnFlow - v
+	if v := cc.inflow.available(); v < int32(transportDefaultConnFlow)/2 {
+		connAdd = int32(transportDefaultConnFlow) - v
 		cc.inflow.add(connAdd)
 	}
 	if err == nil { // No need to refresh if the stream is over or failed.
@@ -2266,8 +2329,8 @@ func (b transportResponseBody) Read(p []byte) (n int, err error) {
 		// consumed by the client) when computing flow control for this
 		// stream.
 		v := int(cs.inflow.available()) + cs.bufPipe.Len()
-		if v < transportDefaultStreamFlow-transportDefaultStreamMinRefresh {
-			streamAdd = int32(transportDefaultStreamFlow - v)
+		if v < int(transportDefaultStreamFlow)-transportDefaultStreamMinRefresh {
+			streamAdd = int32(int(transportDefaultStreamFlow) - v)
 			cs.inflow.add(streamAdd)
 		}
 	}

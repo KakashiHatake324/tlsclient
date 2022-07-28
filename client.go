@@ -6,10 +6,10 @@ import (
 
 	"golang.org/x/net/proxy"
 
-	utls "github.com/KakashiHatake324/tlsclient/utls"
+	utls "github.com/KakashiHatake324/tlsclient/v2/utls"
 )
 
-func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool, timeout time.Duration, proxyUrl ...string) (http.Client, error) {
+func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool, timeout time.Duration, settings CustomizedSettings, proxyUrl ...string) (http.Client, error) {
 
 	var client http.Client
 	var newerror error
@@ -21,13 +21,13 @@ func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool
 				client, newerror = http.Client{}, err
 			}
 			client = http.Client{
-				Transport: newRoundTripper(clientHello, dialer),
+				Transport: newRoundTripper(clientHello, settings, dialer),
 				Jar:       jar,
 				Timeout:   timeout * time.Second,
 			}
 		} else {
 			client = http.Client{
-				Transport: newRoundTripper(clientHello, proxy.Direct),
+				Transport: newRoundTripper(clientHello, settings, proxy.Direct),
 				Jar:       jar,
 				Timeout:   timeout * time.Second,
 			}
@@ -40,14 +40,14 @@ func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool
 				client, newerror = http.Client{}, err
 			}
 			client = http.Client{
-				Transport:     newRoundTripper(clientHello, dialer),
+				Transport:     newRoundTripper(clientHello, settings, dialer),
 				Jar:           jar,
 				Timeout:       timeout * time.Second,
 				CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },
 			}
 		} else {
 			client = http.Client{
-				Transport:     newRoundTripper(clientHello, proxy.Direct),
+				Transport:     newRoundTripper(clientHello, settings, proxy.Direct),
 				Jar:           jar,
 				Timeout:       timeout * time.Second,
 				CheckRedirect: func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse },

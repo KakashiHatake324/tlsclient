@@ -13,15 +13,25 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/KakashiHatake324/tlsclient/net/http2"
+	"github.com/KakashiHatake324/tlsclient/v2/net/http2"
 	"golang.org/x/net/proxy"
 
-	utls "github.com/KakashiHatake324/tlsclient/utls"
-
-	h2Native "github.com/KakashiHatake324/tlsclient/native/http2"
+	utls "github.com/KakashiHatake324/tlsclient/v2/utls"
 )
 
 var errProtocolNegotiated = errors.New("protocol negotiated")
+
+type CustomizedSettings struct {
+	MaxHeaderListSize    int
+	ServerPushSet        bool
+	ServerPushEnable     bool
+	Priority             bool
+	PriorityWeight       int // from 0 to 256
+	InitialWindowSize    int
+	MaxConcurrentStreams int
+	HeaderTableSize      int
+	WindowSizeIncrement  int
+}
 
 type roundTripper struct {
 	sync.Mutex
@@ -33,6 +43,7 @@ type roundTripper struct {
 
 	dialer       proxy.ContextDialer
 	originalHost string
+	cs           CustomizedSettings
 }
 
 func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -72,13 +83,6 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	rt.Lock()
 	defer rt.Unlock()
 
-	/*
-		w, err := os.OpenFile("C:\\Users\\rafae\\OneDrive\\Desktop\\ssl-key.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
-		if err != nil {
-			log.Println(err)
-			return nil, err
-		}
-	*/
 	var host string
 
 	// If we have the connection from when we determined the HTTPS
@@ -123,23 +127,31 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	switch conn.ConnectionState().NegotiatedProtocol {
 	case http2.NextProtoTLS:
 
-		// The remote peer is speaking HTTP 2 + TLS.
+		// chrome latest general settings
+		// rt.cachedTransports[addr] = &http2.Transport{
+		// 	DialTLS:              rt.dialTLSHTTP2,
+		// 	MaxHeaderListSize:    262144,
+		// 	ServerPushSet:        false,
+		// 	ServerPushEnable:     false,
+		// 	Priority:             true,
+		// 	PriorityWeight:       255, // from 0 to 256
+		// 	InitialWindowSize:    6291456,
+		// 	MaxConcurrentStreams: 1000,
+		// 	HeaderTableSize:      65536,
+		// 	WindowSizeIncrement:  15663105,
+		// }
 
-		hostString := strings.ToLower(addr)
-		// uses go's native http/2 transport for sending max limit headera
-		if strings.Contains(hostString, "footlocker") || strings.Contains(hostString, "eastbay") || strings.Contains(hostString, "champssports") || strings.Contains(hostString, "kidsfootlocker") || strings.Contains(hostString, "footaction") {
-
-			rt.cachedTransports[addr] = &h2Native.Transport{
-				DialTLS: rt.dialTLSHTTP2,
-			}
-
-		} else {
-
-			// uses modified transport with chrome's settings
-
-			rt.cachedTransports[addr] = &http2.Transport{
-				DialTLS: rt.dialTLSHTTP2,
-			}
+		rt.cachedTransports[addr] = &http2.Transport{
+			DialTLS:              rt.dialTLSHTTP2,
+			MaxHeaderListSize:    rt.cs.MaxHeaderListSize,
+			ServerPushSet:        rt.cs.ServerPushSet,
+			ServerPushEnable:     rt.cs.ServerPushEnable,
+			Priority:             rt.cs.Priority,
+			PriorityWeight:       rt.cs.PriorityWeight,
+			InitialWindowSize:    rt.cs.InitialWindowSize,
+			MaxConcurrentStreams: rt.cs.MaxConcurrentStreams,
+			HeaderTableSize:      rt.cs.HeaderTableSize,
+			WindowSizeIncrement:  rt.cs.WindowSizeIncrement,
 		}
 
 	default:
@@ -168,7 +180,7 @@ func (rt *roundTripper) getDialTLSAddr(req *http.Request) string {
 	return net.JoinHostPort(req.URL.Host, "443") // we can assume port is 443 at this point
 }
 
-func newRoundTripper(clientHello utls.ClientHelloID, dialer ...proxy.ContextDialer) http.RoundTripper {
+func newRoundTripper(clientHello utls.ClientHelloID, settings CustomizedSettings, dialer ...proxy.ContextDialer) http.RoundTripper {
 	if len(dialer) > 0 {
 		return &roundTripper{
 			dialer: dialer[0],
@@ -177,6 +189,7 @@ func newRoundTripper(clientHello utls.ClientHelloID, dialer ...proxy.ContextDial
 
 			cachedTransports:  make(map[string]http.RoundTripper),
 			cachedConnections: make(map[string]net.Conn),
+			cs:                settings,
 		}
 	} else {
 		return &roundTripper{
@@ -186,6 +199,7 @@ func newRoundTripper(clientHello utls.ClientHelloID, dialer ...proxy.ContextDial
 
 			cachedTransports:  make(map[string]http.RoundTripper),
 			cachedConnections: make(map[string]net.Conn),
+			cs:                settings,
 		}
 	}
 }
