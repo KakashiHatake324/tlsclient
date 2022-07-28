@@ -20,7 +20,7 @@ func main() {
 
 	jar, _ := cookiejar.New(nil)
 
-	settings := CustomizedSettings{
+	settings := tlsclient.CustomizedSettings{
 		MaxHeaderListSize: 262144,
 
 		// Set as true to include enable push in frames
@@ -102,7 +102,7 @@ func main() {
 
 	} else if returnedEncoding == "br" {
 
-		body = tleclient.BodyDecompress(string(body), "br")
+		body = tlsclient.BodyDecompress(string(body), "br")
 
 	}
 
