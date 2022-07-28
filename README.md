@@ -19,7 +19,9 @@ import (
 func main() {
 
 	jar, _ := cookiejar.New(nil)
-
+	
+	// Chrome's Latest Frames Settings
+	// all fields are reuired.
 	settings := tlsclient.CustomizedSettings{
 		MaxHeaderListSize: 262144,
 
