@@ -679,7 +679,7 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 	}
 
 	cc.cond = sync.NewCond(&cc.mu)
-	cc.flow.add(int32(t.InitialWindowSize))
+	cc.flow.add(int32(65535))
 
 	// TODO: adjust this writer size to account for frame size +
 	// MTU + crypto/tls record padding.
