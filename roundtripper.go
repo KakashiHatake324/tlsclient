@@ -13,12 +13,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/KakashiHatake324/tlsclient/net/http2"
+	"github.com/KakashiHatake324/tlsclient/v1/net/http2"
 	"golang.org/x/net/proxy"
 
-	utls "github.com/KakashiHatake324/tlsclient/utls"
+	utls "github.com/KakashiHatake324/tlsclient/v1/utls"
 
-	h2Native "github.com/KakashiHatake324/tlsclient/native/http2"
+	h2Native "github.com/KakashiHatake324/tlsclient/v1/native/http2"
 )
 
 var errProtocolNegotiated = errors.New("protocol negotiated")
