@@ -12,6 +12,7 @@ import (
 	"io"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
@@ -599,8 +600,141 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 			},
 		}, nil
 	default:
-		return ClientHelloSpec{}, errors.New("ClientHello ID " + id.Str() + " is unknown")
+		return ja3ToHello(id.Client), nil
+		//return ClientHelloSpec{}, errors.New("ClientHello ID " + id.Str() + " is unknown")
 	}
+}
+
+// converts ja3 string to clientHelloSpec
+func ja3ToHello(ja3string string) ClientHelloSpec {
+
+	customClientHello := ClientHelloSpec{}
+
+	// pre set extensions map
+	extensionsMap := map[string]TLSExtension{
+		"0":     &SNIExtension{},
+		"13172": &NPNExtension{},
+		"5":     &StatusRequestExtension{},
+		"13": &SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+			ECDSAWithP256AndSHA256,
+			PSSWithSHA256,
+			PKCS1WithSHA256,
+			ECDSAWithP384AndSHA384,
+			PSSWithSHA384,
+			PKCS1WithSHA384,
+			PSSWithSHA512,
+			PKCS1WithSHA512,
+		}},
+
+		"65281": &RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
+		"16":    &ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
+		"18":    &SCTExtension{},
+		"35":    &SessionTicketExtension{},
+		"23":    &UtlsExtendedMasterSecretExtension{},
+		"21":    &UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
+		"51":    &KeyShareExtension{[]KeyShare{}},
+		"45": &PSKKeyExchangeModesExtension{[]uint8{
+			PskModeDHE,
+		}},
+		"43": &SupportedVersionsExtension{[]uint16{
+			GREASE_PLACEHOLDER,
+			VersionTLS13,
+			VersionTLS12,
+			VersionTLS11,
+			VersionTLS10}},
+		"30032": &FakeChannelIDExtension{},
+		"28":    &FakeRecordSizeLimitExtension{0x4001},
+		"17513": &FakeExtension17513{},
+		"27": &CompressCertificateExtension{[]CertCompressionAlgo{
+			CertCompressionBrotli,
+		}},
+	}
+
+	splittedJa3 := strings.Split(ja3string, ",")
+
+	// tls Max Version
+	tlsVer, _ := strconv.ParseUint(splittedJa3[0], 10, 16)
+	customClientHello.TLSVersMax = uint16(tlsVer)
+
+	// tls version 1.0
+	customClientHello.TLSVersMin = VersionTLS10
+
+	// setting cipher suites
+	var cipherSuites []uint16
+	cipherSuitesInput := strings.Split(splittedJa3[1], "-")
+
+	for i := 0; i < len(cipherSuitesInput); i++ {
+
+		suite, _ := strconv.ParseUint(cipherSuitesInput[i], 10, 16)
+		cipherSuites = append(cipherSuites, uint16(suite))
+
+	}
+	customClientHello.CipherSuites = cipherSuites
+
+	// setting compression methods
+	customClientHello.CompressionMethods = []byte{0}
+
+	// setting supported groups
+	supportedGroupsInput := strings.Split(splittedJa3[3], "-")
+
+	var supportedCurveIds []CurveID
+
+	for i := 0; i < len(supportedGroupsInput); i++ {
+
+		id, _ := strconv.ParseUint(supportedGroupsInput[i], 10, 16)
+		supportedCurveIds = append(supportedCurveIds, CurveID(uint16(id)))
+
+	}
+
+	// settings supported points
+	SupportedPointsInput := strings.Split(splittedJa3[4], "-")
+
+	var supportedPoints []uint8
+
+	for i := 0; i < len(SupportedPointsInput); i++ {
+
+		point, _ := strconv.ParseUint(SupportedPointsInput[i], 10, 16)
+		supportedPoints = append(supportedPoints, uint8(point))
+
+	}
+
+	// setting extensions
+	extensionsInput := strings.Split(splittedJa3[2], "-")
+	var extensions []TLSExtension
+
+	for i := 0; i < len(extensionsInput); i++ {
+
+		value := extensionsInput[i]
+
+		if value == "10" {
+
+			ext := &SupportedCurvesExtension{
+				supportedCurveIds,
+			}
+			extensions = append(extensions, ext)
+		} else if value == "11" {
+
+			ext := &SupportedPointsExtension{
+				supportedPoints,
+			}
+			extensions = append(extensions, ext)
+		} else {
+
+			if extensionsMap[value] == nil {
+
+				id, _ := strconv.ParseUint(value, 10, 16)
+				extensions = append(extensions, &GenericExtension{Id: uint16(id)})
+			} else {
+				extensions = append(extensions, extensionsMap[value])
+			}
+
+		}
+
+	}
+
+	customClientHello.Extensions = extensions
+
+	return customClientHello
 }
 
 func (uconn *UConn) applyPresetByID(id ClientHelloID) (err error) {
