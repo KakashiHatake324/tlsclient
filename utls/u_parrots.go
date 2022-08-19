@@ -607,134 +607,108 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 
 // converts ja3 string to clientHelloSpec
 func ja3ToHello(ja3string string) ClientHelloSpec {
-
-	customClientHello := ClientHelloSpec{}
-
 	// pre set extensions map
 	extensionsMap := map[string]TLSExtension{
-		"0":     &SNIExtension{},
-		"13172": &NPNExtension{},
-		"5":     &StatusRequestExtension{},
-		"13": &SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
-			ECDSAWithP256AndSHA256,
-			PSSWithSHA256,
-			PKCS1WithSHA256,
-			ECDSAWithP384AndSHA384,
-			PSSWithSHA384,
-			PKCS1WithSHA384,
-			PSSWithSHA512,
-			PKCS1WithSHA512,
-		}},
+		"0": &SNIExtension{},
+		"5": &StatusRequestExtension{},
 
-		"65281": &RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
-		"16":    &ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
-		"18":    &SCTExtension{},
-		"35":    &SessionTicketExtension{},
-		"23":    &UtlsExtendedMasterSecretExtension{},
-		"21":    &UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
-		"51":    &KeyShareExtension{[]KeyShare{}},
-		"45": &PSKKeyExchangeModesExtension{[]uint8{
-			PskModeDHE,
-		}},
-		"43": &SupportedVersionsExtension{[]uint16{
+		"13": &SignatureAlgorithmsExtension{
+			SupportedSignatureAlgorithms: []SignatureScheme{
+				ECDSAWithP256AndSHA256,
+				ECDSAWithP384AndSHA384,
+				ECDSAWithP521AndSHA512,
+				PSSWithSHA256,
+				PSSWithSHA384,
+				PSSWithSHA512,
+				PKCS1WithSHA256,
+				PKCS1WithSHA384,
+				PKCS1WithSHA512,
+				ECDSAWithSHA1,
+				PKCS1WithSHA1,
+			},
+		},
+		"16": &ALPNExtension{
+			AlpnProtocols: []string{"h2", "http/1.1"},
+		},
+		"18": &SCTExtension{},
+		"21": &UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
+		"23": &UtlsExtendedMasterSecretExtension{},
+		"27": &CompressCertificateExtension{
+			[]CertCompressionAlgo{
+				CertCompressionBrotli,
+			},
+		},
+		"28": &FakeRecordSizeLimitExtension{},
+		"35": &SessionTicketExtension{},
+		"43": &SupportedVersionsExtension{Versions: []uint16{
 			GREASE_PLACEHOLDER,
 			VersionTLS13,
 			VersionTLS12,
 			VersionTLS11,
 			VersionTLS10}},
-		"30032": &FakeChannelIDExtension{},
-		"28":    &FakeRecordSizeLimitExtension{0x4001},
-		"17513": &FakeExtension17513{},
-		"27": &CompressCertificateExtension{[]CertCompressionAlgo{
-			CertCompressionBrotli,
-		}},
+		"44": &CookieExtension{},
+		"45": &PSKKeyExchangeModesExtension{
+			Modes: []uint8{
+				PskModeDHE,
+			}},
+		"51":    &KeyShareExtension{KeyShares: []KeyShare{{Group: X25519}}},
+		"13172": &NPNExtension{},
+		"65281": &RenegotiationInfoExtension{
+			Renegotiation: RenegotiateOnceAsClient,
+		},
 	}
 
-	splittedJa3 := strings.Split(ja3string, ",")
+	splitJa3 := strings.Split(ja3string, ",")
 
-	// tls Max Version
-	tlsVer, _ := strconv.ParseUint(splittedJa3[0], 10, 16)
-	customClientHello.TLSVersMax = uint16(tlsVer)
+	ciphers := strings.Split(splitJa3[1], "-")
+	extensions := strings.Split(splitJa3[2], "-")
+	curves := strings.Split(splitJa3[3], "-")
+	pointFormats := strings.Split(splitJa3[4], "-")
 
-	// tls version 1.0
-	customClientHello.TLSVersMin = VersionTLS10
+	if len(curves) == 1 && curves[0] == "" {
+		curves = []string{}
+	}
+
+	if len(pointFormats) == 1 && pointFormats[0] == "" {
+		pointFormats = []string{}
+	}
 
 	// setting cipher suites
 	var cipherSuites []uint16
-	cipherSuitesInput := strings.Split(splittedJa3[1], "-")
-
-	for i := 0; i < len(cipherSuitesInput); i++ {
-
-		suite, _ := strconv.ParseUint(cipherSuitesInput[i], 10, 16)
-		cipherSuites = append(cipherSuites, uint16(suite))
-
+	for _, cipher := range ciphers {
+		cipherSuite, _ := strconv.ParseUint(cipher, 10, 16)
+		cipherSuites = append(cipherSuites, uint16(cipherSuite))
 	}
-	customClientHello.CipherSuites = cipherSuites
-
-	// setting compression methods
-	customClientHello.CompressionMethods = []byte{0}
-
-	// setting supported groups
-	supportedGroupsInput := strings.Split(splittedJa3[3], "-")
 
 	var supportedCurveIds []CurveID
-
-	for i := 0; i < len(supportedGroupsInput); i++ {
-
-		id, _ := strconv.ParseUint(supportedGroupsInput[i], 10, 16)
-		supportedCurveIds = append(supportedCurveIds, CurveID(uint16(id)))
-
+	for _, curve := range curves {
+		curveId, _ := strconv.ParseUint(curve, 10, 16)
+		supportedCurveIds = append(supportedCurveIds, CurveID(curveId))
 	}
+	extensionsMap["10"] = &SupportedCurvesExtension{Curves: supportedCurveIds}
 
 	// settings supported points
-	SupportedPointsInput := strings.Split(splittedJa3[4], "-")
-
 	var supportedPoints []uint8
-
-	for i := 0; i < len(SupportedPointsInput); i++ {
-
-		point, _ := strconv.ParseUint(SupportedPointsInput[i], 10, 16)
-		supportedPoints = append(supportedPoints, uint8(point))
-
+	for _, point := range pointFormats {
+		pointId, _ := strconv.ParseUint(point, 10, 16)
+		supportedPoints = append(supportedPoints, uint8(pointId))
 	}
+	extensionsMap["11"] = &SupportedPointsExtension{SupportedPoints: supportedPoints}
 
 	// setting extensions
-	extensionsInput := strings.Split(splittedJa3[2], "-")
-	var extensions []TLSExtension
-
-	for i := 0; i < len(extensionsInput); i++ {
-
-		value := extensionsInput[i]
-
-		if value == "10" {
-
-			ext := &SupportedCurvesExtension{
-				supportedCurveIds,
-			}
-			extensions = append(extensions, ext)
-		} else if value == "11" {
-
-			ext := &SupportedPointsExtension{
-				supportedPoints,
-			}
-			extensions = append(extensions, ext)
-		} else {
-
-			if extensionsMap[value] == nil {
-
-				id, _ := strconv.ParseUint(value, 10, 16)
-				extensions = append(extensions, &GenericExtension{Id: uint16(id)})
-			} else {
-				extensions = append(extensions, extensionsMap[value])
-			}
-
+	var extensionsSlice []TLSExtension
+	for _, extension := range extensions {
+		tlsExt, ok := extensionsMap[extension]
+		if ok {
+			extensionsSlice = append(extensionsSlice, tlsExt)
 		}
-
 	}
 
-	customClientHello.Extensions = extensions
-
-	return customClientHello
+	return ClientHelloSpec{
+		CipherSuites:       cipherSuites,
+		CompressionMethods: []byte{compressionNone},
+		Extensions:         extensionsSlice,
+	}
 }
 
 func (uconn *UConn) applyPresetByID(id ClientHelloID) (err error) {
