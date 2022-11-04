@@ -702,7 +702,6 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 		cc.tlsState = &state
 	}
 
-	// SETTING FRAMES IN THE CORRECT ORDER OF CHROME Version 89.0.4389.90
 	// ORDER OF SETTING FRAMES :
 	//                           Settings - Header table size : 65536
 	//                           Settings - Max concurrent streams : 1000
@@ -733,8 +732,8 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 		}
 
 		initialSettings = []Setting{
-			{ID: SettingEnablePush, Val: spVal},
 			{ID: SettingHeaderTableSize, Val: uint32(t.HeaderTableSize)},
+			{ID: SettingEnablePush, Val: spVal}, // Enable_Push is disabled from chrome version 106 by default
 			{ID: SettingMaxConcurrentStreams, Val: uint32(t.MaxConcurrentStreams)},
 			{ID: SettingInitialWindowSize, Val: uint32(transportDefaultStreamFlow)},
 		}
