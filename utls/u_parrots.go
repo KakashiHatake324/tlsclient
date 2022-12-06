@@ -10,10 +10,21 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"sort"
 	"strconv"
 	"strings"
 )
+
+var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func randSeq(n int) string {
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
 
 func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 	switch id {
@@ -426,6 +437,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&CompressCertificateExtension{[]CertCompressionAlgo{
 					CertCompressionBrotli,
 				}},
+				&GenericExtension{Id: 0x4468, Data: []byte(randSeq(6000))},
 				&GenericExtension{Id: 0x4469, Data: []byte(chromeValue)},
 				&GenericExtension{Id: 0x4464, Data: []byte(chromeValue)},
 				&GenericExtension{Id: 0x4465, Data: []byte(chromeValue)},
