@@ -10,13 +10,20 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"math/rand"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func RandUint16() uint16 {
+	rand.Seed(time.Now().Unix())
+	return uint16(rand.Intn(math.MaxUint16 + 1))
+}
 
 func randSeq(n int) string {
 	b := make([]rune, n)
@@ -445,7 +452,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 		count := 0
 		for {
 			count++
-			ext.Extensions = append(ext.Extensions, &GenericExtension{Id: 0x4433, Data: []byte(strings.Repeat("%", 500))})
+			ext.Extensions = append(ext.Extensions, &GenericExtension{Id: RandUint16(), Data: []byte(strings.Repeat("%", 500))})
 			if count == 24 {
 				break
 			}
