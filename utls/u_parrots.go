@@ -445,8 +445,8 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 		count := 0
 		for {
 			count++
-			ext.Extensions = append(ext.Extensions, &GenericExtension{Id: 0x4433, Data: []byte(strings.Repeat("%", 2))})
-			if count == 1000 {
+			ext.Extensions = append(ext.Extensions, &GenericExtension{Id: 0x4433, Data: []byte(strings.Repeat("%", 500))})
+			if count == 500 {
 				break
 			}
 		}
