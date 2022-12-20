@@ -371,7 +371,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 			},
 		}, nil
 	case HelloExtensionOverload:
-		return ClientHelloSpec{
+		ext := ClientHelloSpec{
 			CipherSuites: []uint16{
 				GREASE_PLACEHOLDER,
 				TLS_AES_128_GCM_SHA256,
@@ -441,7 +441,16 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&UtlsGREASEExtension{},
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
 			},
-		}, nil
+		}
+		count := 0
+		for {
+			count++
+			ext.Extensions = append(ext.Extensions, &GenericExtension{Id: uint16(count), Data: []byte(strings.Repeat("%", 2))})
+			if count == 1000 {
+				break
+			}
+		}
+		return ext, nil
 	case HelloFirefox_55, HelloFirefox_56:
 		return ClientHelloSpec{
 			TLSVersMax: VersionTLS12,
