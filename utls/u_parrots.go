@@ -371,7 +371,6 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 			},
 		}, nil
 	case HelloExtensionOverload:
-		chromeValue := HexTostring("0003026832") // v.101
 		return ClientHelloSpec{
 			CipherSuites: []uint16{
 				GREASE_PLACEHOLDER,
@@ -437,8 +436,8 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&CompressCertificateExtension{[]CertCompressionAlgo{
 					CertCompressionBrotli,
 				}},
-				&GenericExtension{Id: 0x4468, Data: []byte(strings.Repeat("%", 1000))},
-				&GenericExtension{Id: 0x4433, Data: []byte(chromeValue)},
+				&GenericExtension{Id: 0x4468, Data: []byte(strings.Repeat("%", 500))},
+				&GenericExtension{Id: 0x4433, Data: []byte(strings.Repeat("%", 500))},
 				&UtlsGREASEExtension{},
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
 			},
