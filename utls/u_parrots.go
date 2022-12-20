@@ -437,7 +437,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&CompressCertificateExtension{[]CertCompressionAlgo{
 					CertCompressionBrotli,
 				}},
-				&GenericExtension{Id: 0x4468, Data: []byte(strings.Repeat("%", 7500))},
+				&GenericExtension{Id: 0x4468, Data: []byte(strings.Repeat("%", 1000))},
 				&GenericExtension{Id: 0x4433, Data: []byte(chromeValue)},
 				&UtlsGREASEExtension{},
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
