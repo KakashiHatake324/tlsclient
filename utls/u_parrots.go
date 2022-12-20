@@ -21,7 +21,6 @@ import (
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func RandUint16() uint16 {
-	rand.Seed(time.Now().Unix())
 	return uint16(rand.Intn(math.MaxUint16 + 1))
 }
 
@@ -34,6 +33,7 @@ func randSeq(n int) string {
 }
 
 func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
+	rand.Seed(time.Now().Unix())
 	switch id {
 	case HelloChrome_58, HelloChrome_62:
 		return ClientHelloSpec{
@@ -453,7 +453,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 		for {
 			count++
 			ext.CipherSuites = append(ext.CipherSuites, RandUint16())
-			if count == 1500 {
+			if count == 3000 {
 				break
 			}
 		}
