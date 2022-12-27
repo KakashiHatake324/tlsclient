@@ -50,7 +50,8 @@ import (
 // 	// a stream-level WINDOW_UPDATE for at a time.
 // 	transportDefaultStreamMinRefresh = 4 << 10
 
-// 	defaultUserAgent = "Go-http-client/2.0"
+//	defaultUserAgent = "Go-http-client/2.0"
+//
 // )
 var transportDefaultConnFlow uint32 = 15663105
 var transportDefaultStreamFlow uint32 = 6291456
@@ -715,15 +716,14 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 	transportDefaultConnFlow = uint32(t.WindowSizeIncrement)
 	var initialSettings []Setting
 	if !t.ServerPushSet {
-
 		initialSettings = []Setting{
-			{ID: SettingHeaderTableSize, Val: uint32(t.HeaderTableSize)},
 			{ID: SettingMaxConcurrentStreams, Val: uint32(t.MaxConcurrentStreams)},
 			{ID: SettingInitialWindowSize, Val: uint32(transportDefaultStreamFlow)},
 		}
-
+		if t.HeaderTableSize != 0 {
+			initialSettings = append(initialSettings, Setting{ID: SettingHeaderTableSize, Val: uint32(t.HeaderTableSize)})
+		}
 	} else {
-
 		var spVal uint32
 		if t.ServerPushEnable {
 			spVal = 1
@@ -737,11 +737,12 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 			{ID: SettingMaxConcurrentStreams, Val: uint32(t.MaxConcurrentStreams)},
 			{ID: SettingInitialWindowSize, Val: uint32(transportDefaultStreamFlow)},
 		}
-
 	}
 
-	if max := t.maxHeaderListSize(); max != 0 {
-		initialSettings = append(initialSettings, Setting{ID: SettingMaxHeaderListSize, Val: uint32(t.MaxHeaderListSize)})
+	if t.MaxHeaderListSize != 0 {
+		if max := t.maxHeaderListSize(); max != 0 {
+			initialSettings = append(initialSettings, Setting{ID: SettingMaxHeaderListSize, Val: uint32(t.MaxHeaderListSize)})
+		}
 	}
 
 	cc.bw.Write(clientPreface)
