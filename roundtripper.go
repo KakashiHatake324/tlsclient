@@ -22,6 +22,7 @@ import (
 var errProtocolNegotiated = errors.New("protocol negotiated")
 
 type CustomizedSettings struct {
+	WriteData            bool
 	MaxHeaderListSize    int
 	ServerPushSet        bool
 	ServerPushEnable     bool
@@ -152,6 +153,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 			MaxConcurrentStreams: rt.cs.MaxConcurrentStreams,
 			HeaderTableSize:      rt.cs.HeaderTableSize,
 			WindowSizeIncrement:  rt.cs.WindowSizeIncrement,
+			WriteData:            rt.cs.WriteData,
 		}
 
 	default:
