@@ -1670,6 +1670,18 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 				f("trailer", trailers)
 			}
 
+		} else if strings.Contains(req.Header.Get("user-agent"), "iPhone") {
+
+			f(":method", m)
+			if req.Method != "CONNECT" {
+				f(":scheme", req.URL.Scheme)
+				f(":path", path)
+			}
+			f(":authority", ReqHost)
+			if trailers != "" {
+				f("trailer", trailers)
+			}
+
 		} else if req.Header.Get("Pseudo-Headers-Order") == "" {
 			f(":method", m)
 			if req.Method != "CONNECT" {
