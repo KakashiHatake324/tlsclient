@@ -1447,9 +1447,9 @@ func (cs *clientStream) writeRequestBody(body io.Reader, bodyCloser io.Closer) (
 			data := remain[:allowed]
 			remain = remain[allowed:]
 			sentEnd = sawEOF && len(remain) == 0 && !hasTrailers
-			if cc.t.WriteData {
-				err = cc.fr.WriteData(cs.ID, sentEnd, data)
-			}
+			//if cc.t.WriteData {
+			err = cc.fr.WriteData(cs.ID, sentEnd, data)
+			//}
 			if err == nil {
 				// TODO(bradfitz): this flush is for latency, not bandwidth.
 				// Most requests won't need this. Make this opt-in or
@@ -1497,9 +1497,9 @@ func (cs *clientStream) writeRequestBody(body io.Reader, bodyCloser io.Closer) (
 	if len(trls) > 0 {
 		err = cc.writeHeaders(cs.ID, true, maxFrameSize, trls)
 	} else {
-		if cc.t.WriteData {
-			err = cc.fr.WriteData(cs.ID, true, nil)
-		}
+		//if cc.t.WriteData {
+		err = cc.fr.WriteData(cs.ID, true, nil)
+		//}
 	}
 	if ferr := cc.bw.Flush(); ferr != nil && err == nil {
 		err = ferr
