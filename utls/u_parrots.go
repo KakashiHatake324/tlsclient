@@ -772,7 +772,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 					VersionTLS10,
 				}},
 				&CompressCertificateExtension{[]CertCompressionAlgo{
-					CertCompressionBrotli,
+					CertCompressionZlib,
 				}},
 				&UtlsGREASEExtension{},
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
