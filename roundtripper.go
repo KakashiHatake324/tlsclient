@@ -2,7 +2,6 @@ package tlsclient
 
 import (
 	"context"
-	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -108,9 +107,9 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 
 	conn := utls.UClient(rawConn, &utls.Config{
 		//KeyLogWriter:          w,
-		ServerName: rt.originalHost,
-		//VerifyPeerCertificate: VerifyCert,
-		InsecureSkipVerify: true,
+		ServerName:            rt.originalHost,
+		VerifyPeerCertificate: VerifyCert,
+		InsecureSkipVerify:    true,
 	},
 		rt.clientHelloId,
 	)
@@ -208,22 +207,22 @@ func newRoundTripper(clientHello utls.ClientHelloID, settings CustomizedSettings
 
 func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 
-	var fingerprints []string
+	var domains []string
 
-	for _, rawCert := range rawCerts {
-		fingerprints = append(fingerprints, fmt.Sprintf("%x", sha256.Sum256(rawCert)))
+	for _, verifiedChain := range verifiedChains {
+		for _, chain := range verifiedChain {
+			for _, chainURL := range chain.URIs {
+				domains = append(domains, chainURL.Host)
+			}
+		}
 	}
 
-	for _, fingerprint := range fingerprints {
-
-		//log.Println(fingerprint)
-		// Check to see if the fingerprints match for the site
-		for f := range SitePrints {
-			if fingerprint == SitePrints[f][1] {
+	for _, rawCert := range rawCerts {
+		for _, domain := range domains {
+			if loadedCerts[domain] == string(rawCert) {
 				return nil
 			}
 		}
 	}
-	return nil
-	//return errors.New("client error with the request - verify sig")
+	return errors.New("stop sniffing please")
 }

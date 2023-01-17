@@ -9,12 +9,18 @@ import (
 	utls "github.com/KakashiHatake324/tlsclient/v2/utls"
 )
 
-func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool, timeout time.Duration, settings CustomizedSettings, proxyUrl ...string) (http.Client, error) {
+func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool, timeout time.Duration, settings CustomizedSettings, host string, cert string, proxyUrl ...string) (http.Client, error) {
 
 	var client http.Client
 	var newerror error
-	if redirect {
 
+	if cert != "" {
+		if _, ok := loadedCerts[host]; !ok {
+			loadedCerts[host] = cert
+		}
+	}
+
+	if redirect {
 		if len(proxyUrl) > 0 && len(proxyUrl[0]) > 0 {
 			dialer, err := newConnectDialer(proxyUrl[0])
 			if err != nil {

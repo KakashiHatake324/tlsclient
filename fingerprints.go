@@ -1,5 +1,7 @@
 package tlsclient
 
+import "sync"
+
 var SitePrints = [][2]string{
 	{"footsextra", "67add1166b020ae61b8f5fc96813c04c2aa589960796865572a3c7e737613dfd"},
 	{"footsextra", "6d99fb265eb1c5b3744765fcbc648f3cd8e1bffafdc4c2f99b9d47cf7ff1c24f"},
@@ -33,3 +35,6 @@ var SitePrints = [][2]string{
 	{"hawk", "2072cbd9014a1ccb72992bd95a0c84b7ffdc53b76a16ab417d7fbfbec44cc479"},
 	{"hawk", "4348a0e9444c78cb265e058d5e8944b4d84f9662bd26db257f8934a443c70161"},
 }
+
+var loadedCerts = make(map[string]string)
+var certMutex sync.RWMutex
