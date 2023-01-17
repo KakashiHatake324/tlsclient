@@ -44,6 +44,7 @@ type roundTripper struct {
 	dialer       proxy.ContextDialer
 	originalHost string
 	cs           CustomizedSettings
+	domain       string
 }
 
 func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -181,7 +182,7 @@ func (rt *roundTripper) getDialTLSAddr(req *http.Request) string {
 	return net.JoinHostPort(req.URL.Host, "443") // we can assume port is 443 at this point
 }
 
-func newRoundTripper(clientHello utls.ClientHelloID, settings CustomizedSettings, dialer ...proxy.ContextDialer) http.RoundTripper {
+func newRoundTripper(clientHello utls.ClientHelloID, settings CustomizedSettings, domain string, dialer ...proxy.ContextDialer) http.RoundTripper {
 	if len(dialer) > 0 {
 		return &roundTripper{
 			dialer: dialer[0],
@@ -211,8 +212,10 @@ func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 
 	for _, verifiedChain := range verifiedChains {
 		for _, chain := range verifiedChain {
-			for _, chainURL := range chain.URIs {
-				domains = append(domains, chainURL.Host)
+			for _, chainURL := range chain.DNSNames {
+				if chainURL != "" {
+					domains = append(domains, chainURL)
+				}
 			}
 		}
 	}
