@@ -108,7 +108,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 
 	conn := utls.UClient(rawConn, &utls.Config{
 		//KeyLogWriter:          w,
-		ServerName:            rt.originalHost,
+		//ServerName:            rt.originalHost,
 		VerifyPeerCertificate: VerifyCert,
 		InsecureSkipVerify:    true,
 	},
@@ -207,6 +207,8 @@ func newRoundTripper(clientHello utls.ClientHelloID, settings CustomizedSettings
 }
 
 func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+	certMutex.Lock()
+	defer certMutex.Unlock()
 
 	for _, rawCert := range rawCerts {
 		cert, err := x509.ParseCertificate(rawCert)

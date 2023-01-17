@@ -1,7 +1,6 @@
 package tlsclient
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -14,9 +13,6 @@ func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool
 
 	var client http.Client
 	var newerror error
-
-	log.Println(cert)
-	log.Println(host)
 
 	if cert != "" {
 		certMutex.Lock()
