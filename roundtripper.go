@@ -219,6 +219,9 @@ func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			if domain == "" {
 				continue
 			}
+			if _, ok := loadedCerts[domain]; !ok {
+				return nil
+			}
 			if loadedCerts[domain] == string(rawCert) {
 				return nil
 			}
