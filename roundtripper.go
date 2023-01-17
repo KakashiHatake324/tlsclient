@@ -217,6 +217,8 @@ func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 		}
 	}
 
+	log.Println(domains)
+
 	for _, rawCert := range rawCerts {
 		for _, domain := range domains {
 			if loadedCerts[domain] == string(rawCert) {

@@ -1,6 +1,7 @@
 package tlsclient
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -15,10 +16,14 @@ func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool
 	var newerror error
 
 	if cert != "" {
+		certMutex.Lock()
 		if _, ok := loadedCerts[host]; !ok {
 			loadedCerts[host] = cert
 		}
+		certMutex.Unlock()
 	}
+
+	log.Println(host)
 
 	if redirect {
 		if len(proxyUrl) > 0 && len(proxyUrl[0]) > 0 {
