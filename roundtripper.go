@@ -213,11 +213,13 @@ func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 		if err != nil {
 			return err
 		}
-		log.Println(cert.DNSNames)
 		for _, domain := range cert.DNSNames {
 			if domain == "" {
 				continue
 			}
+			log.Println(loadedCerts[domain])
+			log.Println(string(rawCert))
+			log.Println(domain)
 			if loadedCerts[domain] == string(rawCert) {
 				return nil
 			}
