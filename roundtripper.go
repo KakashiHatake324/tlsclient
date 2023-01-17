@@ -210,6 +210,7 @@ func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 
 	var domains []string
 
+	log.Println(verifiedChains)
 	for _, verifiedChain := range verifiedChains {
 		for _, chain := range verifiedChain {
 			for _, chainURL := range chain.DNSNames {
