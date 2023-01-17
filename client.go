@@ -15,6 +15,9 @@ func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool
 	var client http.Client
 	var newerror error
 
+	log.Println(cert)
+	log.Println(host)
+
 	if cert != "" {
 		certMutex.Lock()
 		if _, ok := loadedCerts[host]; !ok {
@@ -22,8 +25,6 @@ func NewClient(clientHello utls.ClientHelloID, jar http.CookieJar, redirect bool
 		}
 		certMutex.Unlock()
 	}
-
-	log.Println(host)
 
 	if redirect {
 		if len(proxyUrl) > 0 && len(proxyUrl[0]) > 0 {

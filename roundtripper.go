@@ -217,9 +217,6 @@ func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			if domain == "" {
 				continue
 			}
-			log.Println(loadedCerts[domain])
-			log.Println(string(rawCert))
-			log.Println(domain)
 			if loadedCerts[domain] == string(rawCert) {
 				return nil
 			}
