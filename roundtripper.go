@@ -208,23 +208,16 @@ func newRoundTripper(clientHello utls.ClientHelloID, settings CustomizedSettings
 
 func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 
-	var domains []string
-
-	log.Println(verifiedChains)
-	for _, verifiedChain := range verifiedChains {
-		for _, chain := range verifiedChain {
-			for _, chainURL := range chain.DNSNames {
-				if chainURL != "" {
-					domains = append(domains, chainURL)
-				}
-			}
-		}
-	}
-
-	log.Println(domains)
-
 	for _, rawCert := range rawCerts {
-		for _, domain := range domains {
+		cert, err := x509.ParseCertificate(rawCert)
+		if err != nil {
+			return err
+		}
+		log.Println(cert.DNSNames)
+		for _, domain := range cert.DNSNames {
+			if domain == "" {
+				continue
+			}
 			if loadedCerts[domain] == string(rawCert) {
 				return nil
 			}
