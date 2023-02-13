@@ -216,6 +216,9 @@ func VerifyCert(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			return err
 		}
 		for _, domain := range cert.DNSNames {
+			if domain == "www.hibbett-mobileapi.prolific.io" {
+				continue
+			}
 			if domain == "" {
 				continue
 			}
