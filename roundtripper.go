@@ -112,6 +112,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr, addr2 string
 	} else {
 		clientHost = rt.originalHost
 	}
+	log.Println("SET SERVER NAME", addr2, clientHost)
 
 	conn := utls.UClient(rawConn, &utls.Config{
 		//KeyLogWriter:          w,
@@ -180,6 +181,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr, addr2 string
 }
 
 func (rt *roundTripper) dialTLSHTTP2(network, addr string, d *tls.Config) (net.Conn, error) {
+	log.Println("D SERVER NAME", d.ServerName, "ADDR", addr)
 	return rt.dialTLS(context.Background(), network, addr, d.ServerName)
 }
 
