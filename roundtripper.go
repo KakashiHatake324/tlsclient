@@ -50,6 +50,7 @@ type roundTripper struct {
 func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	addr := rt.getDialTLSAddr(req)
 	addr2 := req.Host
+	log.Println(req.RequestURI)
 	if _, ok := rt.cachedTransports[addr]; !ok {
 		if err := rt.getTransport(req, addr, addr2); err != nil {
 			return nil, err
@@ -109,6 +110,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr, addr2 string
 	var clientHost string
 	if addr2 != "" {
 		clientHost = addr2
+		rt.originalHost = clientHost
 	} else {
 		clientHost = rt.originalHost
 	}
