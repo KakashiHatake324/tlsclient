@@ -591,6 +591,7 @@ func (t *Transport) dialClientConn(addr string, servername string, singleUse boo
 	//	}
 	tconn, err := t.dialTLS()("tcp", addr, t.newTLSConfig(servername))
 	if err != nil {
+		log.Println("dialClientConn", err)
 		return nil, err
 	}
 	return t.newClientConn(tconn, singleUse)
@@ -620,13 +621,16 @@ func (t *Transport) dialTLS() func(string, string, *tls.Config) (net.Conn, error
 func (t *Transport) dialTLSDefault(network, addr string, cfg *tls.Config) (net.Conn, error) {
 	cn, err := tls.Dial(network, addr, cfg)
 	if err != nil {
+		log.Println("dialTLSDefault 1", err)
 		return nil, err
 	}
 	if err := cn.Handshake(); err != nil {
+		log.Println("dialTLSDefault 2", err)
 		return nil, err
 	}
 	if !cfg.InsecureSkipVerify {
 		if err := cn.VerifyHostname(cfg.ServerName); err != nil {
+			log.Println("dialTLSDefault 3", err)
 			return nil, err
 		}
 	}
@@ -1635,7 +1639,7 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 		}
 
 		// incase we have to spoof host
-		ReqHost := req.Header.Get("host")
+		ReqHost := req.Header.Get("spoof-host")
 		if ReqHost == "" {
 			ReqHost = host
 		}
