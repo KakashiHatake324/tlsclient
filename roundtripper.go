@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"strings"
@@ -51,7 +50,7 @@ func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	addr := rt.getDialTLSAddr(req)
 	addr2 := req.Host
 	rt.domain = req.Host
-	log.Println("TR: ADDY1", addr, "ADDY2", addr2)
+	//log.Println("TR: ADDY1", addr, "ADDY2", addr2)
 	if _, ok := rt.cachedTransports[addr]; !ok {
 		if err := rt.getTransport(req, addr, addr2); err != nil {
 			return nil, err
@@ -74,7 +73,7 @@ func (rt *roundTripper) getTransport(req *http.Request, addr, addr2 string) erro
 	case errProtocolNegotiated:
 	case nil:
 		// Should never happen.
-		log.Println("dialTLS returned no error when determining cachedTransports")
+		//log.Println("dialTLS returned no error when determining cachedTransports")
 	default:
 		return err
 	}
@@ -107,15 +106,6 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr, addr2 string
 	if rt.originalHost == "" {
 		rt.originalHost = host
 	}
-
-	var clientHost string
-	if addr2 != "" {
-		clientHost = addr2
-		rt.originalHost = clientHost
-	} else {
-		clientHost = rt.originalHost
-	}
-	log.Println("SET SERVER NAME", addr2, clientHost)
 
 	conn := utls.UClient(rawConn, &utls.Config{
 		//KeyLogWriter:          w,
@@ -184,7 +174,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr, addr2 string
 }
 
 func (rt *roundTripper) dialTLSHTTP2(network, addr string, d *tls.Config) (net.Conn, error) {
-	log.Println("D SERVER NAME", d.ServerName, "ADDR", addr, "CACHED DOMAIN", rt.domain)
+	//log.Println("D SERVER NAME", d.ServerName, "ADDR", addr, "CACHED DOMAIN", rt.domain)
 	return rt.dialTLS(context.Background(), network, addr, rt.domain)
 }
 
