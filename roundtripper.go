@@ -48,16 +48,17 @@ type roundTripper struct {
 }
 
 func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	addr := req.Host + ":443"
+	addr := rt.getDialTLSAddr(req)
+	addr2 := req.Host
 	if _, ok := rt.cachedTransports[addr]; !ok {
-		if err := rt.getTransport(req, addr); err != nil {
+		if err := rt.getTransport(req, addr, addr2); err != nil {
 			return nil, err
 		}
 	}
 	return rt.cachedTransports[addr].RoundTrip(req)
 }
 
-func (rt *roundTripper) getTransport(req *http.Request, addr string) error {
+func (rt *roundTripper) getTransport(req *http.Request, addr, addr2 string) error {
 	switch strings.ToLower(req.URL.Scheme) {
 	case "http":
 		rt.cachedTransports[addr] = &http.Transport{DialContext: rt.dialer.DialContext}
@@ -66,8 +67,7 @@ func (rt *roundTripper) getTransport(req *http.Request, addr string) error {
 	default:
 		return fmt.Errorf("invalid URL scheme: [%v]", req.URL.Scheme)
 	}
-	addr2 := rt.getDialTLSAddr(req)
-	_, err := rt.dialTLS(context.Background(), "tcp", addr2)
+	_, err := rt.dialTLS(context.Background(), "tcp", addr, addr2)
 	switch err {
 	case errProtocolNegotiated:
 	case nil:
@@ -80,7 +80,7 @@ func (rt *roundTripper) getTransport(req *http.Request, addr string) error {
 	return nil
 }
 
-func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.Conn, error) {
+func (rt *roundTripper) dialTLS(ctx context.Context, network, addr, addr2 string) (net.Conn, error) {
 	rt.Lock()
 	defer rt.Unlock()
 
@@ -106,9 +106,16 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 		rt.originalHost = host
 	}
 
+	var clientHost string
+	if addr2 != "" {
+		clientHost = addr2
+	} else {
+		clientHost = rt.originalHost
+	}
+
 	conn := utls.UClient(rawConn, &utls.Config{
 		//KeyLogWriter:          w,
-		ServerName:             rt.originalHost,
+		ServerName:             clientHost,
 		VerifyPeerCertificate:  VerifyCert,
 		InsecureSkipVerify:     true,
 		SessionTicketsDisabled: false,
@@ -161,7 +168,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	default:
 		// Assume the remote peer is speaking HTTP 1.x + TLS.
 		rt.cachedTransports[addr] = &http.Transport{
-			DialTLSContext: rt.dialTLS,
+			//DialTLSContext: rt.dialTLS,
 		}
 	}
 
@@ -172,8 +179,8 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 	return nil, errProtocolNegotiated
 }
 
-func (rt *roundTripper) dialTLSHTTP2(network, addr string, _ *tls.Config) (net.Conn, error) {
-	return rt.dialTLS(context.Background(), network, addr)
+func (rt *roundTripper) dialTLSHTTP2(network, addr string, d *tls.Config) (net.Conn, error) {
+	return rt.dialTLS(context.Background(), network, addr, d.ServerName)
 }
 
 func (rt *roundTripper) getDialTLSAddr(req *http.Request) string {
