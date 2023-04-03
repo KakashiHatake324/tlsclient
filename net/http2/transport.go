@@ -1639,7 +1639,7 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 		}
 
 		// incase we have to spoof host
-		ReqHost := req.Header.Get("spoof-host")
+		ReqHost := req.Header.Get("host")
 		if ReqHost == "" {
 			ReqHost = host
 		}
