@@ -108,9 +108,11 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr string) (net.
 
 	conn := utls.UClient(rawConn, &utls.Config{
 		//KeyLogWriter:          w,
-		ServerName:            rt.originalHost,
-		VerifyPeerCertificate: VerifyCert,
-		InsecureSkipVerify:    true,
+		ServerName:             rt.originalHost,
+		VerifyPeerCertificate:  VerifyCert,
+		InsecureSkipVerify:     true,
+		SessionTicketsDisabled: false,
+		ClientSessionCache:     utls.NewLRUClientSessionCache(1),
 	},
 		rt.clientHelloId,
 	)
