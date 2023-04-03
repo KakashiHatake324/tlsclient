@@ -66,8 +66,8 @@ func (rt *roundTripper) getTransport(req *http.Request, addr string) error {
 	default:
 		return fmt.Errorf("invalid URL scheme: [%v]", req.URL.Scheme)
 	}
-
-	_, err := rt.dialTLS(context.Background(), "tcp", "www.footlocker.com")
+	log.Println("ADDDDY", addr)
+	_, err := rt.dialTLS(context.Background(), "tcp", addr)
 	switch err {
 	case errProtocolNegotiated:
 	case nil:
