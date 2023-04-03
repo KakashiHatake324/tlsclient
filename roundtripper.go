@@ -50,7 +50,8 @@ type roundTripper struct {
 func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	addr := rt.getDialTLSAddr(req)
 	addr2 := req.Host
-	log.Println(req.RequestURI)
+	rt.domain = req.Host
+	log.Println("TR: ADDY1", addr, "ADDY2", addr2)
 	if _, ok := rt.cachedTransports[addr]; !ok {
 		if err := rt.getTransport(req, addr, addr2); err != nil {
 			return nil, err
@@ -118,7 +119,7 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr, addr2 string
 
 	conn := utls.UClient(rawConn, &utls.Config{
 		//KeyLogWriter:          w,
-		ServerName:             clientHost,
+		ServerName:             rt.domain,
 		VerifyPeerCertificate:  VerifyCert,
 		InsecureSkipVerify:     true,
 		SessionTicketsDisabled: false,
@@ -183,8 +184,8 @@ func (rt *roundTripper) dialTLS(ctx context.Context, network, addr, addr2 string
 }
 
 func (rt *roundTripper) dialTLSHTTP2(network, addr string, d *tls.Config) (net.Conn, error) {
-	log.Println("D SERVER NAME", d.ServerName, "ADDR", addr)
-	return rt.dialTLS(context.Background(), network, addr, d.ServerName)
+	log.Println("D SERVER NAME", d.ServerName, "ADDR", addr, "CACHED DOMAIN", rt.domain)
+	return rt.dialTLS(context.Background(), network, addr, rt.domain)
 }
 
 func (rt *roundTripper) getDialTLSAddr(req *http.Request) string {
