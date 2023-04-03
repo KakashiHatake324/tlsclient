@@ -78,7 +78,7 @@ func (p *clientConnPool) getClientConn(req *http.Request, addr string, dialOnMis
 		// It gets its own connection.
 		traceGetConn(req, addr)
 		const singleUse = true
-		cc, err := p.t.dialClientConn(addr, singleUse)
+		cc, err := p.t.dialClientConn(addr, req.Host, singleUse)
 		if err != nil {
 			return nil, err
 		}
@@ -99,7 +99,7 @@ func (p *clientConnPool) getClientConn(req *http.Request, addr string, dialOnMis
 		return nil, ErrNoCachedConn
 	}
 	traceGetConn(req, addr)
-	call := p.getStartDialLocked(addr)
+	call := p.getStartDialLocked(addr, req.Host)
 	p.mu.Unlock()
 	<-call.done
 	return call.res, call.err
@@ -115,7 +115,7 @@ type dialCall struct {
 }
 
 // requires p.mu is held.
-func (p *clientConnPool) getStartDialLocked(addr string) *dialCall {
+func (p *clientConnPool) getStartDialLocked(addr, host string) *dialCall {
 	if call, ok := p.dialing[addr]; ok {
 		// A dial is already in-flight. Don't start another.
 		return call
@@ -125,14 +125,14 @@ func (p *clientConnPool) getStartDialLocked(addr string) *dialCall {
 		p.dialing = make(map[string]*dialCall)
 	}
 	p.dialing[addr] = call
-	go call.dial(addr)
+	go call.dial(addr, host)
 	return call
 }
 
 // run in its own goroutine.
-func (c *dialCall) dial(addr string) {
+func (c *dialCall) dial(addr string, host string) {
 	const singleUse = false // shared conn
-	c.res, c.err = c.p.t.dialClientConn(addr, singleUse)
+	c.res, c.err = c.p.t.dialClientConn(addr, host, singleUse)
 	close(c.done)
 
 	c.p.mu.Lock()

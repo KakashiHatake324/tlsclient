@@ -584,12 +584,12 @@ func canRetryError(err error) bool {
 	return false
 }
 
-func (t *Transport) dialClientConn(addr string, singleUse bool) (*ClientConn, error) {
-	host, _, err := net.SplitHostPort(addr)
-	if err != nil {
-		return nil, err
-	}
-	tconn, err := t.dialTLS()("tcp", addr, t.newTLSConfig(host))
+func (t *Transport) dialClientConn(addr string, servername string, singleUse bool) (*ClientConn, error) {
+	//host, _, err := net.SplitHostPort(addr)
+	//if err != nil {
+	//	return nil, err
+	//	}
+	tconn, err := t.dialTLS()("tcp", addr, t.newTLSConfig(servername))
 	if err != nil {
 		return nil, err
 	}
