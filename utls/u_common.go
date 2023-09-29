@@ -204,6 +204,9 @@ func init() {
 	utlsSupportedGroups = map[CurveID]bool{
 		X25519:    true,
 		CurveP256: true,
+		Curve448:  true,
+		CurveP384: true,
+		CurveP521: true,
 	}
 }
 
