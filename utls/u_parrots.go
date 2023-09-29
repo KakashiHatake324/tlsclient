@@ -1118,11 +1118,13 @@ func (uconn *UConn) ApplyPreset(p *ClientHelloSpec) error {
 				var params ecdheParameters
 				switch utlsSupportedGroups[curveID] {
 				case true:
-					var ok bool
-					params, ok = uconn.HandshakeState.State13.EcdheParams[curveID]
-					if !ok {
-						// Should never happen.
-						return fmt.Errorf("BUG: unsupported Curve in KeyShareExtension: %v.", curveID)
+					if p.TLSVersMax == VersionTLS13 {
+						var ok bool
+						params, ok = uconn.HandshakeState.State13.EcdheParams[curveID]
+						if !ok {
+							// Should never happen.
+							return fmt.Errorf("BUG: unsupported Curve in KeyShareExtension: %v.", curveID)
+						}
 					}
 				case false:
 					var err error
