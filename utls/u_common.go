@@ -101,6 +101,7 @@ const (
 	helloFirefox          = "Firefox"
 	helloChrome           = "Chrome"
 	helloIOS              = "iOS"
+	helloPostman          = "Postman"
 	helloAndroid          = "Android"
 
 	// versions
@@ -159,6 +160,8 @@ var (
 	HelloIOS_11_1   = ClientHelloID{helloIOS, "111", nil} // legacy "111" means 11.1
 	HelloIOS_12_1   = ClientHelloID{helloIOS, "12.1", nil}
 	HelloIOS_LATEST = ClientHelloID{helloIOS, "16.1", nil}
+
+	Hello_PostMan = ClientHelloID{helloPostman, "1", nil}
 )
 
 // based on spec's GreaseStyle, GREASE_PLACEHOLDER may be replaced by another GREASE value

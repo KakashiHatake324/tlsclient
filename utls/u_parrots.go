@@ -778,6 +778,69 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
 			},
 		}, nil
+	case Hello_PostMan:
+		chromeValue := HexTostring("0003026832") // v.101
+		return ClientHelloSpec{
+			CipherSuites: []uint16{
+				TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256, TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_3DES_EDE_CBC_SHA},
+			CompressionMethods: []byte{
+				0x00, // compressionNone
+			},
+			Extensions: []TLSExtension{
+				&UtlsGREASEExtension{},
+				&SNIExtension{},
+				&UtlsExtendedMasterSecretExtension{},
+				&RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
+				&SupportedCurvesExtension{[]CurveID{
+					X25519,
+					CurveP256,
+					CurveP384,
+					CurveP521,
+					Curve448,
+				}},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					0x00, // pointFormatUncompressed
+				}},
+				&SessionTicketExtension{},
+				&ALPNExtension{AlpnProtocols: []string{"http/1.1"}},
+				&StatusRequestExtension{},
+				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+					ECDSAWithP256AndSHA256,
+					ECDSAWithP384AndSHA384,
+					ECDSAWithP521AndSHA512,
+					PSSWithSHA256,
+					PSSWithSHA384,
+					PSSWithSHA512,
+					PKCS1WithSHA256,
+					PKCS1WithSHA384,
+					PKCS1WithSHA512,
+					ECDSAWithSHA1,
+					PKCS1WithSHA1,
+					0x402,
+					0x303,
+					0x301,
+					0x302,
+					0x202,
+				}},
+				&SCTExtension{},
+				&KeyShareExtension{[]KeyShare{
+					{Group: CurveID(GREASE_PLACEHOLDER), Data: []byte{0}},
+					{Group: X25519},
+				}},
+				&PSKKeyExchangeModesExtension{[]uint8{
+					PskModeDHE,
+				}},
+				&SupportedVersionsExtension{[]uint16{
+					VersionTLS12,
+				}},
+				&CompressCertificateExtension{[]CertCompressionAlgo{
+					CertCompressionBrotli,
+				}},
+				&GenericExtension{Id: 0x4469, Data: []byte(chromeValue)},
+				&UtlsGREASEExtension{},
+				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
+			},
+		}, nil
 	default:
 		return ja3ToHello(id.Client), nil
 		//return ClientHelloSpec{}, errors.New("ClientHello ID " + id.Str() + " is unknown")

@@ -111,6 +111,7 @@ const (
 type CurveID uint16
 
 const (
+	Curve448  CurveID = 30
 	CurveP256 CurveID = 23
 	CurveP384 CurveID = 24
 	CurveP521 CurveID = 25
