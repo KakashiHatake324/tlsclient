@@ -792,6 +792,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&UtlsExtendedMasterSecretExtension{},
 				&RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
 				&SupportedCurvesExtension{[]CurveID{
+					CurveID(GREASE_PLACEHOLDER),
 					X25519,
 					CurveP256,
 					CurveP384,
@@ -832,6 +833,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				}},
 				&SupportedVersionsExtension{[]uint16{
 					VersionTLS12,
+					VersionTLS13,
 				}},
 				&CompressCertificateExtension{[]CertCompressionAlgo{
 					CertCompressionBrotli,
@@ -1118,13 +1120,11 @@ func (uconn *UConn) ApplyPreset(p *ClientHelloSpec) error {
 				var params ecdheParameters
 				switch utlsSupportedGroups[curveID] {
 				case true:
-					if p.TLSVersMax == VersionTLS13 {
-						var ok bool
-						params, ok = uconn.HandshakeState.State13.EcdheParams[curveID]
-						if !ok {
-							// Should never happen.
-							return fmt.Errorf("BUG: unsupported Curve in KeyShareExtension: %v.", curveID)
-						}
+					var ok bool
+					params, ok = uconn.HandshakeState.State13.EcdheParams[curveID]
+					if !ok {
+						// Should never happen.
+						return fmt.Errorf("BUG: unsupported Curve in KeyShareExtension: %v.", curveID)
 					}
 				case false:
 					var err error
