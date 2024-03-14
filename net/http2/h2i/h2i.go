@@ -9,14 +9,15 @@
 The h2i command is an interactive HTTP/2 console.
 
 Usage:
-  $ h2i [flags] <hostname>
+
+	$ h2i [flags] <hostname>
 
 Interactive commands in the console: (all parts case-insensitive)
 
-  ping [data]
-  settings ack
-  settings FOO=n BAR=z
-  headers      (open a new stream by typing HTTP/1.1)
+	ping [data]
+	settings ack
+	settings FOO=n BAR=z
+	headers      (open a new stream by typing HTTP/1.1)
 */
 package main
 
@@ -66,7 +67,7 @@ var commands = map[string]command{
 				"ACK",
 				http2.SettingHeaderTableSize.String(),
 				http2.SettingEnablePush.String(),
-				http2.SettingMaxConcurrentStreams.String(),
+				//http2.SettingMaxConcurrentStreams.String(),
 				http2.SettingInitialWindowSize.String(),
 				http2.SettingMaxFrameSize.String(),
 				http2.SettingMaxHeaderListSize.String(),
@@ -360,7 +361,7 @@ func settingByName(name string) (http2.SettingID, bool) {
 	for _, sid := range [...]http2.SettingID{
 		http2.SettingHeaderTableSize,
 		http2.SettingEnablePush,
-		http2.SettingMaxConcurrentStreams,
+		//http2.SettingMaxConcurrentStreams,
 		http2.SettingInitialWindowSize,
 		http2.SettingMaxFrameSize,
 		http2.SettingMaxHeaderListSize,

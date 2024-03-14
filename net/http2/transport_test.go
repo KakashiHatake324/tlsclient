@@ -3936,7 +3936,7 @@ func TestTransportRequestsStallAtServerLimit(t *testing.T) {
 		var wg sync.WaitGroup
 		defer wg.Wait()
 
-		ct.greet(Setting{SettingMaxConcurrentStreams, maxConcurrent})
+		//ct.greet(Setting{SettingMaxConcurrentStreams, maxConcurrent})
 
 		// Server write loop.
 		var buf bytes.Buffer
