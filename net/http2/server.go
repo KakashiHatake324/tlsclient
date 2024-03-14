@@ -819,7 +819,7 @@ func (sc *serverConn) serve() {
 	sc.writeFrame(FrameWriteRequest{
 		write: writeSettings{
 			{SettingMaxFrameSize, sc.srv.maxReadFrameSize()},
-			{SettingMaxConcurrentStreams, sc.advMaxStreams},
+			//{SettingMaxConcurrentStreams, sc.advMaxStreams},
 			{SettingMaxHeaderListSize, sc.maxHeaderListSize()},
 			{SettingInitialWindowSize, uint32(sc.srv.initialStreamRecvWindowSize())},
 		},

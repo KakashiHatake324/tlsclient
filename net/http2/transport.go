@@ -723,7 +723,7 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 	if !t.ServerPushSet {
 		initialSettings = []Setting{
 			{ID: SettingInitialWindowSize, Val: uint32(transportDefaultStreamFlow)},
-			{ID: SettingMaxConcurrentStreams, Val: uint32(t.MaxConcurrentStreams)},
+			//{ID: SettingMaxConcurrentStreams, Val: uint32(t.MaxConcurrentStreams)},
 		}
 		if t.HeaderTableSize != 0 {
 			initialSettings = append(initialSettings, Setting{ID: SettingHeaderTableSize, Val: uint32(t.HeaderTableSize)})
@@ -739,7 +739,7 @@ func (t *Transport) newClientConn(c net.Conn, singleUse bool) (*ClientConn, erro
 		initialSettings = []Setting{
 			{ID: SettingHeaderTableSize, Val: uint32(t.HeaderTableSize)},
 			{ID: SettingEnablePush, Val: spVal}, // Enable_Push is disabled from chrome version 106 by default
-			{ID: SettingMaxConcurrentStreams, Val: uint32(t.MaxConcurrentStreams)},
+			//{ID: SettingMaxConcurrentStreams, Val: uint32(t.MaxConcurrentStreams)},
 			{ID: SettingInitialWindowSize, Val: uint32(transportDefaultStreamFlow)},
 		}
 	}
